@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Easy Note</string>
+    <string name="title_activity_splash">SplashActivity</string>
+    <string name="app_desc">Easily Manage Your Notes On Your Phone &amp; You Can Home Infinite Note</string>
+    <string name="title_list_note">List Notes</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="text_title">Title</string>
+    <string name="text_desc">Description</string>
+    <string name="action_save">Save</string>
+    <string name="msg_success">Success</string>
+</resources>
