@@ -1,6 +1,5 @@
 package com.example.easynote.features.main
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -44,8 +43,8 @@ import com.example.easynote.util.formattedDate
 import com.example.easynote.util.getOrDefault
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.delay
 
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MainContent(
     context: Context,
@@ -70,13 +69,8 @@ fun MainContent(
             .background(color = Color.Red)
     ) {
         HandleState(
+            modifier = Modifier.padding(it),
             viewModel = viewModel,
-            onReloaded = {
-                viewModel.getNotes(true)
-            },
-            onDelete = {
-                viewModel.removeNote(it.id.getOrDefault())
-            },
             onItemClick = { note ->
                 val intent = Intent(context, NoteDetailActivity::class.java)
                 intent.putExtra(EXTRA_NOTE, note)
@@ -87,14 +81,13 @@ fun MainContent(
 
 @Composable
 private fun HandleState(
+    modifier: Modifier,
     viewModel: MainViewModel,
-    onDelete: (note: Note) -> Unit,
-    onReloaded: () -> Unit,
     onItemClick: (note: Note) -> Unit,
 ) {
     val items = remember { mutableStateListOf<Note>() }
     val isRefreshingState = rememberSwipeRefreshState(false)
-    val loadingState = remember { mutableStateOf(false) }
+    val loadingState = remember { mutableStateOf(true) }
     val visibleState = remember { mutableStateOf(false) }
     when (val state = viewModel.state.collectAsState().value) {
         is MainState.Loading -> {
@@ -102,9 +95,9 @@ private fun HandleState(
             loadingState.value = !isRefreshingState.isRefreshing
         }
         is MainState.OnGetListSuccess -> {
-            visibleState.value = true
             loadingState.value = false
             isRefreshingState.isRefreshing = false
+            visibleState.value = true
             if (state.isReloaded) {
                 items.clear()
             }
@@ -115,16 +108,24 @@ private fun HandleState(
             Toast.makeText(LocalContext.current, state.ex.toString(), Toast.LENGTH_SHORT).show()
         }
     }
-    Loading(loadingState.value)
-    AnimatedVisibility(
-        visible = visibleState.value,
-        enter = EnterTransition.None,
-        exit = ExitTransition.None
-    ) {
-        SwipeRefresh(state = isRefreshingState, onRefresh = {
-            onReloaded()
-        }) {
-            BodyContent(items, onDelete, onItemClick)
+    Box(modifier = modifier.fillMaxSize()) {
+        Loading(loadingState.value)
+        AnimatedVisibility(
+            visible = visibleState.value,
+            enter = EnterTransition.None,
+            exit = ExitTransition.None
+        ) {
+            SwipeRefresh(
+                state = isRefreshingState,
+                onRefresh = {
+                    visibleState.value = false
+                    items.clear()
+                    viewModel.getNotes(true)
+                }) {
+                BodyContent(items, onItemClick = onItemClick, onDelete = {
+                    viewModel.removeNote(it.id.getOrDefault())
+                })
+            }
         }
     }
 }
@@ -148,7 +149,11 @@ private fun Empty() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "No Data", fontWeight = FontWeight.SemiBold, fontSize = 24.sp)
+        Text(
+            text = stringResource(id = R.string.no_data),
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 24.sp
+        )
     }
 }
 
@@ -174,10 +179,6 @@ private fun NoteList(
     onDelete: (note: Note) -> Unit,
     onItemClick: (note: Note) -> Unit
 ) {
-    var columnAppeared by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        columnAppeared = true
-    }
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
             modifier = Modifier
@@ -198,15 +199,14 @@ private fun NoteList(
                 if (dismissState.isDismissed(DismissDirection.EndToStart)
                     && dismissState.dismissDirection == DismissDirection.EndToStart
                 ) {
-                    onDelete(item)
-                    noteItems.remove(item)
-                }
-                var itemAppeared by remember { mutableStateOf(!columnAppeared) }
-                LaunchedEffect(Unit) {
-                    itemAppeared = true
+                    LaunchedEffect(dismissState) {
+                        delay(300)
+                        onDelete(item)
+                        noteItems.remove(item)
+                    }
                 }
                 AnimatedVisibility(
-                    visible = itemAppeared && !isDismissed
+                    visible = !isDismissed
                 ) {
                     SwipeToDismiss(
                         state = dismissState,

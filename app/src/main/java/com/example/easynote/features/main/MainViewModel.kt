@@ -3,7 +3,6 @@ package com.example.easynote.features.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.easynote.repository.NoteRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -18,26 +17,22 @@ class MainViewModel(
         _state.value = MainState.Finished
     }
 
-    fun removeNote(noteId: String) = viewModelScope.launch(Dispatchers.Main) {
+    fun removeNote(noteId: String) = viewModelScope.launch {
         noteRepository.removeNote(noteId)
             .catch { cause ->
                 _state.value = MainState.Error(cause)
             }.stateIn(scope = this)
     }
 
-    fun getNotes(isReloaded: Boolean = false) = viewModelScope.launch(Dispatchers.Main) {
+    fun getNotes(isReloaded: Boolean = false) = viewModelScope.launch {
         noteRepository.getNotes()
-            .stateIn(scope = this)
             .onStart {
                 _state.value = MainState.Loading
             }.catch { cause ->
                 _state.value = MainState.Error(cause)
-            }.onCompletion {
-                _state.value = MainState.Finished
-            }
-            .collect { notes ->
+            }.mapLatest { notes ->
                 _state.value = MainState.OnGetListSuccess(notes, isReloaded)
-            }
+            }.stateIn(scope = this)
     }
 
 }
