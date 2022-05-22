@@ -1,6 +1,8 @@
 package com.example.easynote.features.main
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -15,14 +17,13 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -37,74 +38,100 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.easynote.R
 import com.example.easynote.entity.Note
+import com.example.easynote.features.notedetail.NoteDetailActivity
 import com.example.easynote.features.notedetail.NoteDetailActivity.Companion.EXTRA_NOTE
 import com.example.easynote.util.formattedDate
 import com.example.easynote.util.getOrDefault
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MainContent(
-    state: MainState,
-    intent: Intent,
-    onDelete: (note: Note) -> Unit,
-    onResultOk: () -> Unit
+    context: Context,
+    viewModel: MainViewModel
 ) {
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) {
         if (it.resultCode == Activity.RESULT_OK) {
-            onResultOk()
+            viewModel.getNotes(true)
         }
     }
     Scaffold(
-        floatingActionButton = { FloatingButton { launcher.launch(intent) } },
+        floatingActionButton = {
+            FloatingButton {
+                launcher.launch(Intent(context, NoteDetailActivity::class.java))
+            }
+        },
         topBar = { TopBar() },
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color.Red)
     ) {
-        HandleState(state, onDelete) { note ->
-            intent.putExtra(EXTRA_NOTE, note)
-            launcher.launch(intent)
-        }
+        HandleState(
+            viewModel = viewModel,
+            onReloaded = {
+                viewModel.getNotes(true)
+            },
+            onDelete = {
+                viewModel.removeNote(it.id.getOrDefault())
+            },
+            onItemClick = { note ->
+                val intent = Intent(context, NoteDetailActivity::class.java)
+                intent.putExtra(EXTRA_NOTE, note)
+                launcher.launch(intent)
+            })
     }
 }
 
 @Composable
 private fun HandleState(
-    state: MainState,
+    viewModel: MainViewModel,
     onDelete: (note: Note) -> Unit,
-    onItemClick: (note: Note) -> Unit
+    onReloaded: () -> Unit,
+    onItemClick: (note: Note) -> Unit,
 ) {
     val items = remember { mutableStateListOf<Note>() }
+    val isRefreshingState = rememberSwipeRefreshState(false)
+    val loadingState = remember { mutableStateOf(false) }
     val visibleState = remember { mutableStateOf(false) }
-    when (state) {
+    when (val state = viewModel.state.collectAsState().value) {
         is MainState.Loading -> {
             visibleState.value = false
-            Loading()
+            loadingState.value = !isRefreshingState.isRefreshing
         }
         is MainState.OnGetListSuccess -> {
             visibleState.value = true
+            loadingState.value = false
+            isRefreshingState.isRefreshing = false
             if (state.isReloaded) {
                 items.clear()
             }
             items.addAll(state.items)
+            viewModel.finished()
         }
         is MainState.Error -> {
             Toast.makeText(LocalContext.current, state.ex.toString(), Toast.LENGTH_SHORT).show()
         }
     }
+    Loading(loadingState.value)
     AnimatedVisibility(
         visible = visibleState.value,
-        exit = ExitTransition.None,
-        enter = EnterTransition.None
+        enter = EnterTransition.None,
+        exit = ExitTransition.None
     ) {
-        BodyContent(items, onDelete, onItemClick)
+        SwipeRefresh(state = isRefreshingState, onRefresh = {
+            onReloaded()
+        }) {
+            BodyContent(items, onDelete, onItemClick)
+        }
     }
 }
 
 @Composable
 private fun BodyContent(
-    noteItems: SnapshotStateList<Note>,
+    noteItems: MutableList<Note>,
     onDelete: (note: Note) -> Unit,
     onItemClick: (note: Note) -> Unit
 ) {
@@ -126,22 +153,32 @@ private fun Empty() {
 }
 
 @Composable
-private fun Loading() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+private fun Loading(loadingState: Boolean) {
+    AnimatedVisibility(
+        visible = loadingState,
+        enter = EnterTransition.None,
+        exit = ExitTransition.None
     ) {
-        CircularProgressIndicator()
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
     }
 }
 
 @Composable
 private fun NoteList(
-    noteItems: SnapshotStateList<Note>,
+    noteItems: MutableList<Note>,
     onDelete: (note: Note) -> Unit,
     onItemClick: (note: Note) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    var columnAppeared by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        columnAppeared = true
+    }
+    Column(modifier = Modifier.fillMaxSize()) {
         Text(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
@@ -151,21 +188,25 @@ private fun NoteList(
         )
         LazyColumn(
             modifier =
-            Modifier.fillMaxWidth()
+            Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
         ) {
-            itemsIndexed(items = noteItems) { index, item ->
-                val dismissState = rememberDismissState(
-                    confirmStateChange = { it != DismissValue.DismissedToEnd }
-                )
-                var itemAppeared by remember { mutableStateOf(true) }
+            items(items = noteItems, { it.id.getOrDefault() }) { item ->
+                val dismissState = rememberDismissState(DismissValue.Default)
                 val isDismissed = dismissState.isDismissed(DismissDirection.EndToStart)
-                if (dismissState.targetValue == DismissValue.DismissedToEnd) {
+                if (dismissState.isDismissed(DismissDirection.EndToStart)
+                    && dismissState.dismissDirection == DismissDirection.EndToStart
+                ) {
                     onDelete(item)
-                    noteItems.removeAt(index)
-                    itemAppeared = false
+                    noteItems.remove(item)
+                }
+                var itemAppeared by remember { mutableStateOf(!columnAppeared) }
+                LaunchedEffect(Unit) {
+                    itemAppeared = true
                 }
                 AnimatedVisibility(
-                    visible = itemAppeared && !isDismissed,
+                    visible = itemAppeared && !isDismissed
                 ) {
                     SwipeToDismiss(
                         state = dismissState,
