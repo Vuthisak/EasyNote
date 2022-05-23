@@ -82,7 +82,6 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.4.0-alpha01"
-    implementation "com.google.accompanist:accompanist-swiperefresh:0.24.9-beta"
 
     // firebase
     implementation platform('com.google.firebase:firebase-bom:30.0.1')

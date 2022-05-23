@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.easynote.entity.Note
 import com.example.easynote.repository.NoteRepository
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class NoteDetailViewModel(
@@ -28,7 +28,6 @@ class NoteDetailViewModel(
 
     private fun createNote(note: Note) = viewModelScope.launch {
         repository.saveNote(note)
-            .stateIn(scope = this)
             .onStart {
                 _state.value = NoteDetailState.Loading
             }.catch { cause ->
@@ -40,7 +39,6 @@ class NoteDetailViewModel(
 
     private fun updateNote(note: Note) = viewModelScope.launch {
         repository.updateNote(note)
-            .stateIn(scope = this)
             .onStart {
                 _state.value = NoteDetailState.Loading
             }.catch { cause ->

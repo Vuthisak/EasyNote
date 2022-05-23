@@ -10,12 +10,8 @@ class MainViewModel(
     private val noteRepository: NoteRepository
 ) : ViewModel() {
 
-    private var _state = MutableStateFlow<MainState>(MainState.Finished)
+    private var _state = MutableStateFlow<MainState>(MainState.Default)
     val state = _state.asStateFlow()
-
-    fun finished() {
-        _state.value = MainState.Finished
-    }
 
     fun removeNote(noteId: String) = viewModelScope.launch {
         noteRepository.removeNote(noteId)
@@ -32,7 +28,7 @@ class MainViewModel(
                 _state.value = MainState.Error(cause)
             }.mapLatest { notes ->
                 _state.value = MainState.OnGetListSuccess(notes, isReloaded)
-            }.stateIn(scope = this)
+            }.stateIn(this)
     }
 
 }
