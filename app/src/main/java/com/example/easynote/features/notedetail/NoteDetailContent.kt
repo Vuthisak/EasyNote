@@ -99,7 +99,7 @@ private fun TitleTextField(titleState: MutableState<String>) {
         modifier = Modifier.fillMaxWidth(),
         value = titleState.value,
         onValueChange = { titleState.value = it },
-        label = { Text(text = "Title") },
+        label = { Text(text = stringResource(id = R.string.text_title)) },
         maxLines = 1,
         colors = defaultTextFieldColors(),
     )
