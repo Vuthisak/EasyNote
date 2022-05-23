@@ -9,7 +9,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.flowOn
 
 interface NoteRepository {
     suspend fun saveNote(note: Note): Flow<Note?>
@@ -22,57 +22,49 @@ class NoteRepositoryImpl : NoteRepository {
 
     private val firestore: FirebaseFirestore = Firebase.firestore
 
-    override suspend fun updateNote(note: Note): Flow<Void> = withContext(Dispatchers.IO) {
-        flow {
-            val result = firestore
-                .collection(COLLECTION)
-                .document(note.id.getOrDefault())
-                .set(note)
-                .await()
-            emit(result)
-        }
-    }
+    override suspend fun updateNote(note: Note): Flow<Void> = flow {
+        val result = firestore
+            .collection(COLLECTION)
+            .document(note.id.getOrDefault())
+            .set(note)
+            .await()
+        emit(result)
+    }.flowOn(Dispatchers.IO)
 
-    override suspend fun removeNote(noteId: String): Flow<Void> = withContext(Dispatchers.IO) {
-        flow {
-            val result = firestore
-                .collection(COLLECTION)
-                .document(noteId)
-                .delete()
-                .await()
-            emit(result)
-        }
-    }
+    override suspend fun removeNote(noteId: String): Flow<Void> = flow {
+        val result = firestore
+            .collection(COLLECTION)
+            .document(noteId)
+            .delete()
+            .await()
+        emit(result)
+    }.flowOn(Dispatchers.IO)
 
-    override suspend fun saveNote(note: Note): Flow<Note?> = withContext(Dispatchers.IO) {
-        flow {
-            val result = firestore
-                .collection(COLLECTION)
-                .add(note)
-                .await()
-                .get()
-                .await()
-                .toObject(Note::class.java)
-            emit(result)
-        }
-    }
+    override suspend fun saveNote(note: Note): Flow<Note?> = flow {
+        val result = firestore
+            .collection(COLLECTION)
+            .add(note)
+            .await()
+            .get()
+            .await()
+            .toObject(Note::class.java)
+        emit(result)
+    }.flowOn(Dispatchers.IO)
 
-    override suspend fun getNotes(): Flow<MutableList<Note>> = withContext(Dispatchers.IO) {
-        flow {
-            val items = mutableListOf<Note>()
-            firestore
-                .collection(COLLECTION)
-                .get()
-                .await()
-                .documents.forEach {
-                    it.toObject(Note::class.java)?.let { note ->
-                        note.id = it.id
-                        items.add(note)
-                    }
+    override suspend fun getNotes(): Flow<MutableList<Note>> = flow {
+        val items = mutableListOf<Note>()
+        firestore
+            .collection(COLLECTION)
+            .get()
+            .await()
+            .documents.forEach {
+                it.toObject(Note::class.java)?.let { note ->
+                    note.id = it.id
+                    items.add(note)
                 }
-            emit(items)
-        }
-    }
+            }
+        emit(items)
+    }.flowOn(Dispatchers.IO)
 
     private companion object {
         const val COLLECTION = "notes"
