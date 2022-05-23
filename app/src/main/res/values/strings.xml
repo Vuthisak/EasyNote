@@ -8,4 +8,5 @@
     <string name="text_desc">Description</string>
     <string name="action_save">Save</string>
     <string name="msg_success">Success</string>
+    <string name="no_data">No Data</string>
 </resources>

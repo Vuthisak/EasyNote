@@ -83,7 +83,7 @@ private fun Content(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(4.dp)
+                    .padding(it)
             ) {
                 TitleTextField(titleState)
                 DescriptionTextField(descState)
