@@ -19,7 +19,6 @@ class NoteDetailViewModel(
     val state = _state
 
     fun createOrUpdate(note: Note) {
-        _state.value = NoteDetailState.Loading
         if (!note.id.isNullOrBlank()) {
             updateNote(note)
         } else {
