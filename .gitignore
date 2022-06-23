@@ -1,15 +1,74 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+Skip to content
+Search or jump to…
+Pull requests
+Issues
+Marketplace
+Explore
+
+@Vuthisak
+Branch master was renamed to main.
+github
+/
+gitignore
+Public
+Code
+Pull requests
+275
+Actions
+Security
+Insights
+gitignore/Android.gitignore
+@paulsmithkc
+paulsmithkc Android Studio
+…
+Latest commit d7a25ed on Feb 3
+ History
+ 51 contributors
+@friederbluemle@shiftkey@arcresu@tral@Neargye@callingshotgun@nicholas-gs@jsoref@malhobayyeb@ntakouris@Yousha@whoshuu
+33 lines (26 sloc)  431 Bytes
+
+# Gradle files
+.gradle/
+build/
+
+# Local configuration file (sdk path, etc)
 local.properties
+
+# Log/OS Files
+*.log
+
+# Android Studio generated files and folders
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+output.json
+
+# IntelliJ
+*.iml
+.idea/
+misc.xml
+deploymentTargetDropDown.xml
+render.experimental.xml
+
+# Keystore files
+*.jks
+*.keystore
+
+# Google Services (e.g. APIs or Firebase)
+google-services.json
+
+# Android Profiling
+*.hprof
+© 2022 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Docs
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
