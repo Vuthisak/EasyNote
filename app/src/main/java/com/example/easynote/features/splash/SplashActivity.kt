@@ -7,7 +7,6 @@ import android.os.Looper
 import androidx.compose.runtime.Composable
 import com.example.easynote.BaseActivity
 import com.example.easynote.features.main.MainActivity
-import com.example.easynote.features.splash.components.SplashContent
 
 class SplashActivity : BaseActivity() {
 
