@@ -1,6 +1,7 @@
 package com.example.easynote
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
@@ -19,5 +20,9 @@ abstract class BaseActivity : ComponentActivity() {
 
     @Composable
     abstract fun Content()
+
+    protected fun showToast(message: String, length: Int = Toast.LENGTH_SHORT) {
+        Toast.makeText(this, message, length).show()
+    }
 
 }

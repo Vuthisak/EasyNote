@@ -58,33 +58,50 @@ private data class LoginUiState(
 )
 
 @Composable
-fun LoginContent(viewModel: LoginViewModel) {
+fun LoginContent(
+    viewModel: LoginViewModel,
+    onSuccess: () -> Unit,
+    onError: (ex: Throwable) -> Unit
+) {
     val loginState = remember { LoginUiState() }
-    val listener = object : LoginListener {
-        override fun onLoginClicked(username: String, password: String) {
-            viewModel.login(username, password)
-        }
-    }
-    viewModel.viewModelScope.launch(Dispatchers.Main) {
-        viewModel.state.collectLatest {
-            when (it) {
-                is LoginState.Loading -> loginState.loadingState.value = true
-                is LoginState.Finished -> loginState.loadingState.value = false
-                is LoginState.Error -> loginState.loadingState.value = false
-                is LoginState.Success -> {
-                    loginState.loadingState.value = false
-                }
-            }
-        }
-    }
+
+    handleState(viewModel, loginState, onSuccess, onError)
+
     Box(Modifier.fillMaxSize()) {
         Scaffold(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = Color.Red)
         ) {
-            Body(it, loginState, listener)
+            Body(it, loginState, getLoginListener(viewModel))
             Loading(loadingState = loginState.loadingState)
+        }
+    }
+}
+
+@Composable
+private fun getLoginListener(viewModel: LoginViewModel) =
+    object : LoginListener {
+        override fun onLoginClicked(username: String, password: String) {
+            viewModel.login(username, password)
+        }
+    }
+
+@Composable
+private fun handleState(
+    viewModel: LoginViewModel,
+    loginState: LoginUiState,
+    onSuccess: () -> Unit,
+    onError: (ex: Throwable) -> Unit
+) {
+    viewModel.viewModelScope.launch(Dispatchers.Main) {
+        viewModel.state.collectLatest {
+            when (it) {
+                is LoginState.Loading -> loginState.loadingState.value = true
+                is LoginState.Finished -> loginState.loadingState.value = false
+                is LoginState.Error -> onError(it.error)
+                is LoginState.Success -> onSuccess()
+            }
         }
     }
 }
