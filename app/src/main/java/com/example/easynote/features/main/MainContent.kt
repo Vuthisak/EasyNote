@@ -3,7 +3,6 @@ package com.example.easynote.features.main
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -24,7 +23,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.DismissDirection
 import androidx.compose.material.DismissState
 import androidx.compose.material.DismissValue
@@ -43,7 +41,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -52,7 +49,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -60,18 +56,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.LifecycleCoroutineScope
 import com.example.easynote.R
 import com.example.easynote.entity.Note
 import com.example.easynote.features.notedetail.NoteDetailActivity
 import com.example.easynote.features.notedetail.NoteDetailActivity.Companion.EXTRA_NOTE
+import com.example.easynote.util.Loading
 import com.example.easynote.util.formattedDate
 import com.example.easynote.util.getOrDefault
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainContent(
+    lifecycleScope: LifecycleCoroutineScope,
     context: Context,
     viewModel: MainViewModel
 ) {
@@ -94,6 +95,7 @@ fun MainContent(
             .background(color = Color.Red)
     ) {
         HandleState(
+            lifecycleScope = lifecycleScope,
             modifier = Modifier.padding(it),
             viewModel = viewModel,
             onItemClick = { note ->
@@ -106,6 +108,7 @@ fun MainContent(
 
 @Composable
 private fun HandleState(
+    lifecycleScope: LifecycleCoroutineScope,
     modifier: Modifier,
     viewModel: MainViewModel,
     onItemClick: (note: Note) -> Unit,
@@ -114,27 +117,29 @@ private fun HandleState(
     val isRefreshingState = rememberSwipeRefreshState(false)
     val loadingState = remember { mutableStateOf(true) }
     val visibleState = remember { mutableStateOf(false) }
-    when (val state = viewModel.state.collectAsState().value) {
-        is MainState.Loading -> {
-            visibleState.value = false
-            loadingState.value = !isRefreshingState.isRefreshing
-        }
-        is MainState.OnGetListSuccess -> {
-            loadingState.value = false
-            isRefreshingState.isRefreshing = false
-            visibleState.value = true
-            if (state.isReloaded) {
-                items.clear()
+    lifecycleScope.launch {
+        viewModel.state.collectLatest { state ->
+            when (state) {
+                is MainState.Finished -> loadingState.value = false
+                is MainState.Loading -> {
+                    visibleState.value = false
+                    loadingState.value = !isRefreshingState.isRefreshing
+                }
+                is MainState.OnGetListSuccess -> {
+                    loadingState.value = false
+                    isRefreshingState.isRefreshing = false
+                    visibleState.value = true
+                    if (state.isReloaded) {
+                        items.clear()
+                    }
+                    items.addAll(state.items)
+                }
+                is MainState.Error -> {}
             }
-            items.addAll(state.items)
-            viewModel.finished()
-        }
-        is MainState.Error -> {
-            Toast.makeText(LocalContext.current, state.ex.toString(), Toast.LENGTH_SHORT).show()
         }
     }
     Box(modifier = modifier.fillMaxSize()) {
-        Loading(loadingState.value)
+        Loading(loadingState)
         AnimatedVisibility(
             visible = visibleState.value,
             enter = EnterTransition.None,
@@ -179,22 +184,6 @@ private fun Empty() {
             fontWeight = FontWeight.SemiBold,
             fontSize = 24.sp
         )
-    }
-}
-
-@Composable
-private fun Loading(loadingState: Boolean) {
-    AnimatedVisibility(
-        visible = loadingState,
-        enter = EnterTransition.None,
-        exit = ExitTransition.None
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
-        }
     }
 }
 

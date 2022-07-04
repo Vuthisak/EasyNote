@@ -2,14 +2,14 @@ package com.example.easynote.features.notedetail
 
 import android.os.Bundle
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.lifecycleScope
 import com.example.easynote.BaseActivity
 import com.example.easynote.entity.Note
-import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class NoteDetailActivity : BaseActivity() {
 
-    private val viewModel: NoteDetailViewModel by inject()
+    private val viewModel: NoteDetailViewModel by viewModel()
     private lateinit var note: Note
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,8 +19,7 @@ class NoteDetailActivity : BaseActivity() {
 
     @Composable
     override fun Content() {
-        val state = viewModel.state.observeAsState().value
-        NoteDetailContent(state, note, onSuccess = {
+        NoteDetailContent(lifecycleScope, viewModel, note, onSuccess = {
             setResult(RESULT_OK)
             finish()
         }, onCreateOrUpdate = {

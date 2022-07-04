@@ -3,7 +3,14 @@ package com.example.easynote.features.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.easynote.repository.NoteRepository
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class MainViewModel(
@@ -30,9 +37,11 @@ class MainViewModel(
                 _state.value = MainState.Loading
             }.catch { cause ->
                 _state.value = MainState.Error(cause)
-            }.mapLatest { notes ->
+            }.map { notes ->
                 _state.value = MainState.OnGetListSuccess(notes, isReloaded)
-            }.stateIn(scope = this)
+            }.onCompletion {
+                _state.value = MainState.Finished
+            }.collect()
     }
 
 }

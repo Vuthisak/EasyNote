@@ -6,8 +6,19 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.runtime.Composable
@@ -22,14 +33,18 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.LifecycleCoroutineScope
 import com.example.easynote.R
 import com.example.easynote.entity.Note
 import com.example.easynote.ui.theme.BackgroundLoading
 import com.example.easynote.util.getOrDefault
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @Composable
 fun NoteDetailContent(
-    state: NoteDetailState?,
+    lifecycleScope: LifecycleCoroutineScope,
+    viewModel: NoteDetailViewModel,
     note: Note,
     onCreateOrUpdate: (note: Note) -> Unit,
     onSuccess: () -> Unit
@@ -40,18 +55,15 @@ fun NoteDetailContent(
     val validateState = remember(titleState.value, descState.value) {
         titleState.value.trim().isNotBlank() && descState.value.trim().isNotBlank()
     }
-    when (state) {
-        is NoteDetailState.Finished -> {
-            loadingState.value = false
+    lifecycleScope.launch {
+        viewModel.state.collectLatest { state ->
+            when(state) {
+                is NoteDetailState.Loading -> loadingState.value = true
+                is NoteDetailState.Finished -> loadingState.value = false
+                is NoteDetailState.UpdateOrSaveSuccess -> onSuccess()
+                is NoteDetailState.Error -> throw state.ex
+            }
         }
-        is NoteDetailState.Loading -> {
-            loadingState.value = true
-        }
-        is NoteDetailState.UpdateOrSaveSuccess -> {
-            loadingState.value = false
-            onSuccess()
-        }
-        is NoteDetailState.Error -> throw state.ex
     }
     Content(note, validateState, titleState, descState, loadingState) {
         onCreateOrUpdate(it)
