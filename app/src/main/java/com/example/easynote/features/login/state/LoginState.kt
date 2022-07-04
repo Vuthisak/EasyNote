@@ -1,4 +1,4 @@
-package com.example.easynote.features.login
+package com.example.easynote.features.login.state
 
 import com.google.firebase.auth.FirebaseUser
 

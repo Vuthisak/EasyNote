@@ -1,7 +1,9 @@
 package com.example.easynote.features.login
 
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,15 +15,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -32,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -46,16 +46,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import com.example.easynote.R
+import com.example.easynote.features.login.state.LoginState
+import com.example.easynote.features.login.state.LoginUiState
+import com.example.easynote.features.register.RegisterActivity
 import com.example.easynote.util.Loading
+import com.example.easynote.util.TextInputField
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-
-private data class LoginUiState(
-    val usernameState: MutableState<String> = mutableStateOf(""),
-    val passwordState: MutableState<String> = mutableStateOf(""),
-    val loadingState: MutableState<Boolean> = mutableStateOf(false)
-)
 
 @Composable
 fun LoginContent(
@@ -80,12 +78,20 @@ fun LoginContent(
 }
 
 @Composable
-private fun getLoginListener(viewModel: LoginViewModel) =
-    object : LoginListener {
+private fun getLoginListener(viewModel: LoginViewModel): LoginListener {
+    val context = LocalContext.current
+    return object : LoginListener {
         override fun onLoginClicked(username: String, password: String) {
             viewModel.login(username, password)
         }
+
+        override fun onCreateAccountClicked() {
+            Intent(context, RegisterActivity::class.java).apply {
+                context.startActivity(this)
+            }
+        }
     }
+}
 
 @Composable
 private fun handleState(
@@ -139,17 +145,18 @@ private fun Body(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            CreateAccountText()
+            CreateAccountText(listener)
         }
     }
 }
 
 @Composable
-private fun CreateAccountText() {
+private fun CreateAccountText(listener: LoginListener) {
     Text(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 16.dp)
+            .clickable { listener.onCreateAccountClicked() },
         text = stringResource(id = R.string.text_create_account),
         style = TextStyle(
             fontWeight = FontWeight.Bold, fontSize = 16.sp, textAlign = TextAlign.Center
@@ -209,16 +216,9 @@ private fun PasswordTextField(passwordText: MutableState<String>) {
     val passwordVisible = rememberSaveable {
         mutableStateOf(false)
     }
-    TextField(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .wrapContentHeight(),
-        value = passwordText.value,
-        onValueChange = { passwordText.value = it },
-        label = { Text(text = stringResource(id = R.string.text_password)) },
-        maxLines = 1,
-        colors = defaultTextFieldColors(),
+    TextInputField(
+        valueState = passwordText,
+        labelText = stringResource(id = R.string.text_password),
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Done,
             keyboardType = KeyboardType.Password
@@ -240,24 +240,12 @@ private fun PasswordTextField(passwordText: MutableState<String>) {
 
 @Composable
 private fun UsernameTextField(usernameText: MutableState<String>) {
-    TextField(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .wrapContentHeight(),
-        value = usernameText.value,
-        onValueChange = { usernameText.value = it },
-        label = { Text(text = stringResource(id = R.string.text_username)) },
-        maxLines = 1,
-        colors = defaultTextFieldColors(),
+    TextInputField(
+        valueState = usernameText,
+        labelText = stringResource(id = R.string.text_username),
         keyboardOptions = KeyboardOptions(
             capitalization = KeyboardCapitalization.None,
             imeAction = ImeAction.Next
         )
     )
 }
-
-@Composable
-private fun defaultTextFieldColors() = TextFieldDefaults.textFieldColors(
-    backgroundColor = Color.Transparent
-)

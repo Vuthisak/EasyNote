@@ -33,6 +33,12 @@
             android:windowSoftInputMode="adjustPan|stateHidden" />
 
         <activity
+            android:name=".features.register.RegisterActivity"
+            android:exported="false"
+            android:label=""
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+
+        <activity
             android:name=".features.main.MainActivity"
             android:exported="false"
             android:label="@string/title_activity_main"
