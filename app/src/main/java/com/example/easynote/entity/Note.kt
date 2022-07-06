@@ -1,6 +1,5 @@
 package com.example.easynote.entity
 
-import com.example.easynote.ui.theme.getRandomColor
 import com.example.easynote.util.getCurrentDateTimeMilli
 import java.io.Serializable
 
@@ -9,6 +8,6 @@ data class Note(
     var desc: String? = null
 ) : Serializable {
     var id: String? = null
+    var userId: String? = null
     val updatedAt: Long = getCurrentDateTimeMilli()
-    val backgroundColor: Long = getRandomColor()
 }

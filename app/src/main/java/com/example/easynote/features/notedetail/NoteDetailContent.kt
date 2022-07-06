@@ -50,43 +50,49 @@ fun NoteDetailContent(
     onCreateOrUpdate: (note: Note) -> Unit,
     onSuccess: () -> Unit
 ) {
-    val uiState = remember { mutableStateOf(NoteDetailUiState()) }
+    val uiState = remember { mutableStateOf(NoteDetailUiState(note)) }
     with(uiState.value) {
         val validateState = remember(titleState.value, descState.value) {
             titleState.value.trim().isNotBlank() && descState.value.trim().isNotBlank()
         }
+        handleState(this, lifecycleScope, viewModel, onSuccess)
 
-        lifecycleScope.launch {
-            viewModel.state.collectLatest { state ->
-                when (state) {
-                    is NoteDetailState.Loading -> loadingState.value = true
-                    is NoteDetailState.Finished -> loadingState.value = false
-                    is NoteDetailState.UpdateOrSaveSuccess -> onSuccess()
-                    is NoteDetailState.Error -> throw state.ex
-                }
+        Content(this, note, validateState) { onCreateOrUpdate(it) }
+    }
+}
+
+@Composable
+private fun handleState(
+    uiState: NoteDetailUiState,
+    lifecycleScope: LifecycleCoroutineScope,
+    viewModel: NoteDetailViewModel,
+    onSuccess: () -> Unit
+) {
+    lifecycleScope.launch {
+        viewModel.state.collectLatest { state ->
+            when (state) {
+                is NoteDetailState.Loading -> uiState.loadingState.value = true
+                is NoteDetailState.Finished -> uiState.loadingState.value = false
+                is NoteDetailState.UpdateOrSaveSuccess -> onSuccess()
+                is NoteDetailState.Error -> throw state.ex
             }
-        }
-        Content(note, validateState, titleState, descState, loadingState) {
-            onCreateOrUpdate(it)
         }
     }
 }
 
 @Composable
 private fun Content(
+    uiState: NoteDetailUiState,
     note: Note,
     validateState: Boolean,
-    titleState: MutableState<String>,
-    descState: MutableState<String>,
-    loadingState: MutableState<Boolean>,
     onSaveOrUpdate: (note: Note) -> Unit
 ) {
     Box(Modifier.fillMaxSize()) {
         Scaffold(
             topBar = {
                 TopBar(validateState) {
-                    note.title = titleState.value
-                    note.desc = descState.value
+                    note.title = uiState.titleState.value
+                    note.desc = uiState.descState.value
                     onSaveOrUpdate(note)
                 }
             },
@@ -99,11 +105,11 @@ private fun Content(
                     .fillMaxSize()
                     .padding(it)
             ) {
-                TitleTextField(titleState)
-                DescriptionTextField(descState)
+                TitleTextField(uiState.titleState)
+                DescriptionTextField(uiState.descState)
             }
         }
-        Loading(loadingState)
+        Loading(uiState.loadingState)
     }
 }
 

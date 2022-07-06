@@ -29,7 +29,6 @@ private val AppColor = lightColors(
 
 @Composable
 fun EasyNoteTheme(content: @Composable () -> Unit) {
-
     MaterialTheme(
         colors = AppColor,
         typography = Typography,

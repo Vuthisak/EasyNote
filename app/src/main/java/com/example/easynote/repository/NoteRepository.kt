@@ -3,6 +3,7 @@ package com.example.easynote.repository
 import com.example.easynote.entity.Note
 import com.example.easynote.util.await
 import com.example.easynote.util.getOrDefault
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -21,6 +22,7 @@ interface NoteRepository {
 class NoteRepositoryImpl : NoteRepository {
 
     private val firestore: FirebaseFirestore = Firebase.firestore
+    private val userId = FirebaseAuth.getInstance().currentUser?.uid
 
     override suspend fun updateNote(note: Note): Flow<Void> = flow {
         val result = firestore
@@ -55,6 +57,7 @@ class NoteRepositoryImpl : NoteRepository {
         val items = mutableListOf<Note>()
         firestore
             .collection(COLLECTION)
+            .whereEqualTo("userId", userId)
             .get()
             .await()
             .documents.forEach {
