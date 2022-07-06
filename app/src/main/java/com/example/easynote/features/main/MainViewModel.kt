@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.easynote.repository.NoteRepository
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
@@ -18,11 +17,7 @@ class MainViewModel(
 ) : ViewModel() {
 
     private var _state = MutableStateFlow<MainState>(MainState.Finished)
-    val state = _state.asStateFlow()
-
-    fun finished() {
-        _state.value = MainState.Finished
-    }
+    val state = _state
 
     fun removeNote(noteId: String) = viewModelScope.launch {
         noteRepository.removeNote(noteId)

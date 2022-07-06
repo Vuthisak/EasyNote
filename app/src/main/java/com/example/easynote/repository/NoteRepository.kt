@@ -43,6 +43,7 @@ class NoteRepositoryImpl : NoteRepository {
     }.flowOn(Dispatchers.IO)
 
     override suspend fun saveNote(note: Note): Flow<Note?> = flow {
+        note.userId = userId
         val result = firestore
             .collection(COLLECTION)
             .add(note)
