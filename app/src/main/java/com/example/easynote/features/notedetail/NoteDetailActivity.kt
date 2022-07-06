@@ -3,7 +3,7 @@ package com.example.easynote.features.notedetail
 import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.lifecycleScope
-import com.example.easynote.BaseActivity
+import com.example.easynote.base.BaseActivity
 import com.example.easynote.entity.Note
 import org.koin.androidx.viewmodel.ext.android.viewModel
 

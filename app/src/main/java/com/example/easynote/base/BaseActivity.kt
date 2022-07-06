@@ -1,4 +1,4 @@
-package com.example.easynote
+package com.example.easynote.base
 
 import android.os.Bundle
 import android.widget.Toast

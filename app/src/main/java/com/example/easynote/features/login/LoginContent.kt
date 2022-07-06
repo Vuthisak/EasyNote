@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -46,9 +45,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import com.example.easynote.R
+import com.example.easynote.features.login.listener.LoginListener
 import com.example.easynote.features.login.state.LoginState
 import com.example.easynote.features.login.state.LoginUiState
 import com.example.easynote.features.register.RegisterActivity
+import com.example.easynote.ui.theme.buttonHeight
 import com.example.easynote.util.Loading
 import com.example.easynote.util.TextInputField
 import kotlinx.coroutines.Dispatchers
@@ -71,7 +72,7 @@ fun LoginContent(
                 .fillMaxSize()
                 .background(color = Color.Red)
         ) {
-            Body(it, loginState, getLoginListener(viewModel))
+            Body(loginState, getLoginListener(viewModel))
             Loading(loadingState = loginState.loadingState)
         }
     }
@@ -114,7 +115,6 @@ private fun handleState(
 
 @Composable
 private fun Body(
-    it: PaddingValues,
     loginUiState: LoginUiState,
     listener: LoginListener
 ) {
@@ -122,7 +122,7 @@ private fun Body(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(it),
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.Center
         ) {
             AppLogo()
@@ -171,16 +171,14 @@ private fun LoginButton(
     usernameText: MutableState<String>,
     passwordText: MutableState<String>
 ) {
-    Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-        Button(modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp),
-            onClick = {
-                listener.onLoginClicked(usernameText.value, passwordText.value)
-            }
-        ) {
-            Text(text = stringResource(id = R.string.action_login))
+    Button(modifier = Modifier
+        .fillMaxWidth()
+        .height(buttonHeight),
+        onClick = {
+            listener.onLoginClicked(usernameText.value, passwordText.value)
         }
+    ) {
+        Text(text = stringResource(id = R.string.action_login))
     }
 }
 

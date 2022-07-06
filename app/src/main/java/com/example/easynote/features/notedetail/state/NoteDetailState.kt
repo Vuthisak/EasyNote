@@ -1,4 +1,4 @@
-package com.example.easynote.features.notedetail
+package com.example.easynote.features.notedetail.state
 
 sealed class NoteDetailState {
     object Finished : NoteDetailState()

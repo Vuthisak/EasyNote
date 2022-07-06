@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.compose.runtime.Composable
-import com.example.easynote.BaseActivity
+import com.example.easynote.base.BaseActivity
 import com.example.easynote.features.login.LoginActivity
 import com.example.easynote.features.main.MainActivity
 import com.google.firebase.auth.FirebaseAuth

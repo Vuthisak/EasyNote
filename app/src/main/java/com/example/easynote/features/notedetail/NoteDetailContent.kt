@@ -36,8 +36,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.example.easynote.R
 import com.example.easynote.entity.Note
+import com.example.easynote.features.notedetail.state.NoteDetailState
+import com.example.easynote.features.notedetail.state.NoteDetailUiState
 import com.example.easynote.ui.theme.BackgroundLoading
-import com.example.easynote.util.getOrDefault
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -49,24 +50,25 @@ fun NoteDetailContent(
     onCreateOrUpdate: (note: Note) -> Unit,
     onSuccess: () -> Unit
 ) {
-    val titleState = remember { mutableStateOf(note.title.getOrDefault()) }
-    val descState = remember { mutableStateOf(note.desc.getOrDefault()) }
-    val loadingState = remember { mutableStateOf(false) }
-    val validateState = remember(titleState.value, descState.value) {
-        titleState.value.trim().isNotBlank() && descState.value.trim().isNotBlank()
-    }
-    lifecycleScope.launch {
-        viewModel.state.collectLatest { state ->
-            when(state) {
-                is NoteDetailState.Loading -> loadingState.value = true
-                is NoteDetailState.Finished -> loadingState.value = false
-                is NoteDetailState.UpdateOrSaveSuccess -> onSuccess()
-                is NoteDetailState.Error -> throw state.ex
+    val uiState = remember { mutableStateOf(NoteDetailUiState()) }
+    with(uiState.value) {
+        val validateState = remember(titleState.value, descState.value) {
+            titleState.value.trim().isNotBlank() && descState.value.trim().isNotBlank()
+        }
+
+        lifecycleScope.launch {
+            viewModel.state.collectLatest { state ->
+                when (state) {
+                    is NoteDetailState.Loading -> loadingState.value = true
+                    is NoteDetailState.Finished -> loadingState.value = false
+                    is NoteDetailState.UpdateOrSaveSuccess -> onSuccess()
+                    is NoteDetailState.Error -> throw state.ex
+                }
             }
         }
-    }
-    Content(note, validateState, titleState, descState, loadingState) {
-        onCreateOrUpdate(it)
+        Content(note, validateState, titleState, descState, loadingState) {
+            onCreateOrUpdate(it)
+        }
     }
 }
 

@@ -14,4 +14,6 @@
     <string name="text_password">Password</string>
     <string name="text_create_account">Or create account</string>
     <string name="text_forgot_password">Forgot password?</string>
+    <string name="text_register">Register</string>
+    <string name="text_confirm_password">Confirm Password</string>
 </resources>

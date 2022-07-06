@@ -3,6 +3,7 @@ package com.example.easynote.util
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.VisualTransformation
+import com.example.easynote.ui.theme.BackgroundLoading
 
 @Composable
 fun Loading(loadingState: MutableState<Boolean>) {
@@ -30,8 +32,10 @@ fun Loading(loadingState: MutableState<Boolean>) {
         exit = ExitTransition.None
     ) {
         Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+            modifier = Modifier
+                .fillMaxSize()
+                .background(BackgroundLoading),
+            contentAlignment = Alignment.Center,
         ) {
             CircularProgressIndicator()
         }

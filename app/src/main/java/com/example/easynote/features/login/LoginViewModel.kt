@@ -5,8 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.easynote.features.login.state.LoginState
 import com.example.easynote.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
@@ -16,23 +17,20 @@ class LoginViewModel(
 ) : ViewModel() {
 
     private var _state = MutableStateFlow<LoginState>(LoginState.Finished)
-    val state = _state.asStateFlow()
+    val state = _state
 
     fun login(email: String, password: String) = viewModelScope.launch {
         repository
             .login(email, password)
             .onStart {
                 _state.value = LoginState.Loading
-            }
-            .catch {
+            }.catch {
                 _state.value = LoginState.Error(it)
-            }
-            .onCompletion {
-                _state.value = LoginState.Finished
-            }
-            .collect {
+            }.map {
                 _state.value = LoginState.Success(it)
-            }
+            }.onCompletion {
+                _state.value = LoginState.Finished
+            }.collect()
     }
 
 }

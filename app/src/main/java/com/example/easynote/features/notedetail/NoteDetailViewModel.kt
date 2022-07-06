@@ -3,6 +3,7 @@ package com.example.easynote.features.notedetail
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.easynote.entity.Note
+import com.example.easynote.features.notedetail.state.NoteDetailState
 import com.example.easynote.repository.NoteRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch

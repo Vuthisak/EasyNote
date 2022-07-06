@@ -1,7 +1,7 @@
 package com.example.easynote.features.register
 
 import androidx.compose.runtime.Composable
-import com.example.easynote.BaseActivity
+import com.example.easynote.base.BaseActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RegisterActivity : BaseActivity() {
@@ -10,7 +10,7 @@ class RegisterActivity : BaseActivity() {
 
     @Composable
     override fun Content() {
-        RegisterContent(viewModel = viewModel)
+        RegisterContent(activity = this, viewModel = viewModel)
     }
 
 }

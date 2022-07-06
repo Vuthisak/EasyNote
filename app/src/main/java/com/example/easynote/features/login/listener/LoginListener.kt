@@ -1,4 +1,4 @@
-package com.example.easynote.features.login
+package com.example.easynote.features.login.listener
 
 interface LoginListener {
     fun onLoginClicked(username: String, password: String)
