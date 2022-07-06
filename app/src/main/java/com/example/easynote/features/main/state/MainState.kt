@@ -1,4 +1,4 @@
-package com.example.easynote.features.main
+package com.example.easynote.features.main.state
 
 import com.example.easynote.entity.Note
 

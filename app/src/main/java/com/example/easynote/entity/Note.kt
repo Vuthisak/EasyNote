@@ -10,4 +10,8 @@ data class Note(
     var id: String? = null
     var userId: String? = null
     val updatedAt: Long = getCurrentDateTimeMilli()
+
+    companion object {
+        const val KEY_USER_ID = "userId"
+    }
 }

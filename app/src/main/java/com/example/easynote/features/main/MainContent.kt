@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.example.easynote.R
 import com.example.easynote.entity.Note
+import com.example.easynote.features.main.state.MainState
 import com.example.easynote.features.notedetail.NoteDetailActivity
 import com.example.easynote.features.notedetail.NoteDetailActivity.Companion.EXTRA_NOTE
 import com.example.easynote.util.Loading

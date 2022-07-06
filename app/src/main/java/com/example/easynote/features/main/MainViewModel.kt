@@ -2,6 +2,7 @@ package com.example.easynote.features.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.easynote.features.main.state.MainState
 import com.example.easynote.repository.NoteRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
@@ -31,7 +32,8 @@ class MainViewModel(
             .onStart {
                 _state.value = MainState.Loading
             }.catch { cause ->
-                _state.value = MainState.Error(cause)
+                throw cause
+//                _state.value = MainState.Error(cause)
             }.map { notes ->
                 _state.value = MainState.OnGetListSuccess(notes, isReloaded)
             }.onCompletion {

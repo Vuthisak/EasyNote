@@ -1,6 +1,7 @@
 package com.example.easynote.features.login
 
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,28 +44,27 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.lifecycleScope
 import com.example.easynote.R
 import com.example.easynote.features.login.listener.LoginListener
 import com.example.easynote.features.login.state.LoginState
 import com.example.easynote.features.login.state.LoginUiState
+import com.example.easynote.features.main.MainActivity
 import com.example.easynote.features.register.RegisterActivity
 import com.example.easynote.ui.theme.buttonHeight
 import com.example.easynote.util.Loading
 import com.example.easynote.util.TextInputField
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @Composable
 fun LoginContent(
-    viewModel: LoginViewModel,
-    onSuccess: () -> Unit,
-    onError: (ex: Throwable) -> Unit
+    activity: LoginActivity,
+    viewModel: LoginViewModel
 ) {
     val loginState = remember { LoginUiState() }
 
-    handleState(viewModel, loginState, onSuccess, onError)
+    handleState(activity, viewModel, loginState)
 
     Box(Modifier.fillMaxSize()) {
         Scaffold(
@@ -96,18 +96,25 @@ private fun getLoginListener(viewModel: LoginViewModel): LoginListener {
 
 @Composable
 private fun handleState(
+    activity: LoginActivity,
     viewModel: LoginViewModel,
-    loginState: LoginUiState,
-    onSuccess: () -> Unit,
-    onError: (ex: Throwable) -> Unit
+    loginState: LoginUiState
 ) {
-    viewModel.viewModelScope.launch(Dispatchers.Main) {
+    activity.lifecycleScope.launch {
         viewModel.state.collectLatest {
             when (it) {
                 is LoginState.Loading -> loginState.loadingState.value = true
                 is LoginState.Finished -> loginState.loadingState.value = false
-                is LoginState.Error -> onError(it.error)
-                is LoginState.Success -> onSuccess()
+                is LoginState.Error -> {
+                    Toast.makeText(activity, it.error.message, Toast.LENGTH_SHORT).show()
+                }
+                is LoginState.Success -> {
+                    val intent = Intent(activity, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
+                    activity.startActivity(intent)
+                    activity.finish()
+                }
             }
         }
     }
