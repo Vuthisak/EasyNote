@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.lifecycleScope
 import com.example.easynote.base.BaseActivity
-import com.example.easynote.util.encryption.EncryptionManager
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : BaseActivity() {
@@ -13,7 +12,6 @@ class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        EncryptionManager.createMasterKey()
         reload()
     }
 

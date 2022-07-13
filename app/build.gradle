@@ -87,6 +87,9 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.6.0-alpha01"
     implementation "com.google.accompanist:accompanist-swiperefresh:0.24.9-beta"
 
+    // secure preferences
+    implementation 'com.scottyab:secure-preferences-lib:0.1.7'
+
     // firebase
     implementation platform('com.google.firebase:firebase-bom:30.0.1')
     implementation 'com.google.firebase:firebase-analytics'
