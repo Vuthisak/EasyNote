@@ -41,7 +41,8 @@ class AuthRepositoryImpl : AuthRepository {
     }.flowOn(Dispatchers.IO)
 
     override suspend fun confirmResetPassword(
-        code: String, newPassword: String
+        code: String,
+        newPassword: String
     ): Flow<Void> = flow<Void> {
         val result = firebaseAuth
             .confirmPasswordReset(code, newPassword)

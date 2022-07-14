@@ -17,18 +17,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -38,9 +31,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,6 +46,7 @@ import com.example.easynote.features.register.RegisterActivity
 import com.example.easynote.ui.theme.buttonHeight
 import com.example.easynote.util.Loading
 import com.example.easynote.util.TextInputField
+import com.example.easynote.util.TextInputPassword
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -87,20 +78,24 @@ class LoginContent(
         activity.lifecycleScope.launch {
             viewModel.state.collectLatest {
                 when (it) {
-                    is LoginState.Loading -> loginState.loadingState.value = true
-                    is LoginState.Finished -> loginState.loadingState.value = false
+                    is LoginState.Loading -> loginState.showLoading()
+                    is LoginState.Finished -> loginState.hideLoading()
                     is LoginState.Error -> {
                         Toast.makeText(activity, it.error.message, Toast.LENGTH_SHORT).show()
                     }
-                    is LoginState.Success -> {
-                        val intent = Intent(activity, MainActivity::class.java).apply {
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        }
-                        activity.startActivity(intent)
-                        activity.finish()
-                    }
+                    is LoginState.Success -> gotoMainScreen()
                 }
             }
+        }
+    }
+
+    private fun gotoMainScreen() {
+        with(activity) {
+            val intent = Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            startActivity(intent)
+            finish()
         }
     }
 
@@ -218,28 +213,9 @@ class LoginContent(
 
     @Composable
     private fun PasswordTextField(passwordText: MutableState<String>) {
-        val passwordVisible = rememberSaveable {
-            mutableStateOf(false)
-        }
-        TextInputField(
+        TextInputPassword(
             valueState = passwordText,
-            labelText = stringResource(id = R.string.text_password),
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done,
-                keyboardType = KeyboardType.Password
-            ),
-            visualTransformation = if (passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
-            trailingIcon = {
-                val image =
-                    if (passwordVisible.value) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-
-                // Please provide localized description for accessibility services
-                val description = if (passwordVisible.value) "Hide password" else "Show password"
-
-                IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
-                    Icon(imageVector = image, description)
-                }
-            }
+            labelText = stringResource(id = R.string.text_password)
         )
     }
 

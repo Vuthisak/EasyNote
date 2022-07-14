@@ -1,6 +1,7 @@
 package com.example.easynote.features.notedetail
 
 import android.app.Activity.RESULT_OK
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -67,16 +68,22 @@ class NoteDetailContent(
         activity.lifecycleScope.launch {
             viewModel.state.collectLatest { state ->
                 when (state) {
-                    is NoteDetailState.Loading -> uiState.loadingState.value = true
-                    is NoteDetailState.Finished -> uiState.loadingState.value = false
-                    is NoteDetailState.UpdateOrSaveSuccess -> {
-                        activity.setResult(RESULT_OK)
-                        activity.finish()
-                    }
-                    is NoteDetailState.Error -> throw state.ex
+                    is NoteDetailState.Loading -> uiState.showLoading()
+                    is NoteDetailState.Finished -> uiState.hideLoading()
+                    is NoteDetailState.UpdateOrSaveSuccess -> onUpdateOrSaveSuccess()
+                    is NoteDetailState.Error -> onError(state.ex)
                 }
             }
         }
+    }
+
+    private fun onUpdateOrSaveSuccess() {
+        activity.setResult(RESULT_OK)
+        activity.finish()
+    }
+
+    private fun onError(ex: Throwable) {
+        Toast.makeText(activity, ex.message, Toast.LENGTH_SHORT).show()
     }
 
     @Composable

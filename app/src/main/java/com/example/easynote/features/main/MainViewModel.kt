@@ -32,8 +32,7 @@ class MainViewModel(
             .onStart {
                 _state.value = MainState.Loading
             }.catch { cause ->
-                throw cause
-//                _state.value = MainState.Error(cause)
+                _state.value = MainState.Error(cause)
             }.map { notes ->
                 _state.value = MainState.OnGetListSuccess(notes, isReloaded)
             }.onCompletion {

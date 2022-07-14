@@ -12,11 +12,7 @@ abstract class BaseActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            EasyNoteTheme {
-                content.register()
-            }
-        }
+        setContent { EasyNoteTheme { content.register() } }
     }
 
     protected fun showToast(message: String, length: Int = Toast.LENGTH_SHORT) {

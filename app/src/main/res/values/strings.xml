@@ -16,4 +16,11 @@
     <string name="text_forgot_password">Forgot password?</string>
     <string name="text_register">Register</string>
     <string name="text_confirm_password">Confirm Password</string>
+    <string name="action_request">Request</string>
+    <string name="title_forgot_password">Forgot Password</string>
+    <string name="text_reset_password">Reset Password</string>
+    <string name="text_code">Code</string>
+    <string name="text_new_password">New Password</string>
+    <string name="text_confirm_new_password">Confirm New Password</string>
+    <string name="action_confirm">Confirm</string>
 </resources>

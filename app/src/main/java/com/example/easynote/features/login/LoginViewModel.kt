@@ -20,17 +20,15 @@ class LoginViewModel(
     val state = _state
 
     fun login(email: String, password: String) = viewModelScope.launch {
-        repository
-            .login(email, password)
-            .onStart {
-                _state.value = LoginState.Loading
-            }.catch {
-                _state.value = LoginState.Error(it)
-            }.map {
-                _state.value = LoginState.Success(it)
-            }.onCompletion {
-                _state.value = LoginState.Finished
-            }.collect()
+        repository.login(email, password).onStart {
+            _state.value = LoginState.Loading
+        }.catch { cause ->
+            _state.value = LoginState.Error(cause)
+        }.map {
+            _state.value = LoginState.Success(it)
+        }.onCompletion {
+            _state.value = LoginState.Finished
+        }.collect()
     }
 
 }

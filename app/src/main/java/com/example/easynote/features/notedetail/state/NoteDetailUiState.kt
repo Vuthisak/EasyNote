@@ -11,8 +11,10 @@ data class NoteDetailUiState(
     val descState: MutableState<String> = mutableStateOf(""),
     override val loadingState: MutableState<Boolean> = mutableStateOf(false)
 ) : BaseUiState(loadingState) {
+
     constructor(note: Note) : this() {
         titleState.value = note.title.getOrDefault()
         descState.value = note.desc.getOrDefault()
     }
+
 }

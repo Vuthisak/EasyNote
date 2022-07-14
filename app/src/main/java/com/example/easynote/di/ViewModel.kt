@@ -1,6 +1,7 @@
 package com.example.easynote.di
 
 import com.example.easynote.features.forgotpassword.request.ForgotPasswordViewModel
+import com.example.easynote.features.forgotpassword.resetpassword.ResetPasswordViewModel
 import com.example.easynote.features.login.LoginViewModel
 import com.example.easynote.features.main.MainViewModel
 import com.example.easynote.features.notedetail.NoteDetailViewModel
@@ -10,6 +11,7 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val viewModel = module {
+
     viewModel {
         MainViewModel(get())
     }
@@ -31,6 +33,11 @@ val viewModel = module {
     }
 
     viewModel {
-        ForgotPasswordViewModel()
+        ForgotPasswordViewModel(get())
     }
+
+    viewModel {
+        ResetPasswordViewModel(get())
+    }
+
 }

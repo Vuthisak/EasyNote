@@ -53,6 +53,11 @@
             android:exported="false"
             android:label="" />
 
+        <activity
+            android:name=".features.forgotpassword.resetpassword.ResetPasswordActivity"
+            android:exported="false"
+            android:label="" />
+
     </application>
 
 </manifest>
