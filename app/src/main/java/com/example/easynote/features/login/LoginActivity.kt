@@ -1,14 +1,14 @@
 package com.example.easynote.features.login
 
-import androidx.compose.runtime.Composable
 import com.example.easynote.base.BaseActivity
+import com.example.easynote.base.BaseContent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class LoginActivity : BaseActivity() {
 
     private val viewModel: LoginViewModel by viewModel()
-
-    @Composable
-    override fun Content() = LoginContent(this, viewModel)
+    override val content: BaseContent by lazy(LazyThreadSafetyMode.NONE) {
+        LoginContent(this, viewModel)
+    }
 
 }

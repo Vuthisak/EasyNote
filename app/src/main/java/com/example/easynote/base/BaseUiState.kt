@@ -5,4 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 
 abstract class BaseUiState(
     open val loadingState: MutableState<Boolean> = mutableStateOf(false)
-)
+) {
+    fun showLoading() = run { loadingState.value = true }
+    fun hideLoading() = run { loadingState.value = false }
+}

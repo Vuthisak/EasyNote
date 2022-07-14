@@ -1,9 +1,8 @@
 package com.example.easynote.features.notedetail
 
 import android.os.Bundle
-import androidx.compose.runtime.Composable
-import androidx.lifecycle.lifecycleScope
 import com.example.easynote.base.BaseActivity
+import com.example.easynote.base.BaseContent
 import com.example.easynote.entity.Note
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -11,20 +10,13 @@ class NoteDetailActivity : BaseActivity() {
 
     private val viewModel: NoteDetailViewModel by viewModel()
     private lateinit var note: Note
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        note = (intent.extras?.getSerializable(EXTRA_NOTE) as? Note) ?: Note()
+    override val content: BaseContent by lazy(LazyThreadSafetyMode.NONE) {
+        NoteDetailContent(this, viewModel, note)
     }
 
-    @Composable
-    override fun Content() {
-        NoteDetailContent(lifecycleScope, viewModel, note, onSuccess = {
-            setResult(RESULT_OK)
-            finish()
-        }, onCreateOrUpdate = {
-            viewModel.createOrUpdate(note)
-        })
+    override fun onCreate(savedInstanceState: Bundle?) {
+        note = (intent.extras?.getSerializable(EXTRA_NOTE) as? Note) ?: Note()
+        super.onCreate(savedInstanceState)
     }
 
     companion object {

@@ -1,5 +1,6 @@
 package com.example.easynote.di
 
+import com.example.easynote.features.forgotpassword.request.ForgotPasswordViewModel
 import com.example.easynote.features.login.LoginViewModel
 import com.example.easynote.features.main.MainViewModel
 import com.example.easynote.features.notedetail.NoteDetailViewModel
@@ -27,5 +28,9 @@ val viewModel = module {
 
     viewModel {
         PasscodeViewModel()
+    }
+
+    viewModel {
+        ForgotPasswordViewModel()
     }
 }

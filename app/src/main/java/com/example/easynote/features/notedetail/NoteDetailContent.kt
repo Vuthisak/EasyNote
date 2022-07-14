@@ -1,5 +1,6 @@
 package com.example.easynote.features.notedetail
 
+import android.app.Activity.RESULT_OK
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -33,8 +34,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.lifecycle.lifecycleScope
 import com.example.easynote.R
+import com.example.easynote.base.BaseContent
 import com.example.easynote.entity.Note
 import com.example.easynote.features.notedetail.state.NoteDetailState
 import com.example.easynote.features.notedetail.state.NoteDetailUiState
@@ -42,151 +44,150 @@ import com.example.easynote.ui.theme.BackgroundLoading
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-@Composable
-fun NoteDetailContent(
-    lifecycleScope: LifecycleCoroutineScope,
-    viewModel: NoteDetailViewModel,
-    note: Note,
-    onCreateOrUpdate: (note: Note) -> Unit,
-    onSuccess: () -> Unit
-) {
-    val uiState = remember { mutableStateOf(NoteDetailUiState(note)) }
-    with(uiState.value) {
-        val validateState = remember(titleState.value, descState.value) {
-            titleState.value.trim().isNotBlank() && descState.value.trim().isNotBlank()
+class NoteDetailContent(
+    private val activity: NoteDetailActivity,
+    private val viewModel: NoteDetailViewModel,
+    private val note: Note
+) : BaseContent() {
+
+    @Composable
+    override fun register() {
+        val uiState = remember { mutableStateOf(NoteDetailUiState(note)) }
+        with(uiState.value) {
+            val validateState = remember(titleState.value, descState.value) {
+                titleState.value.trim().isNotBlank() && descState.value.trim().isNotBlank()
+            }
+            handleState(this)
+            Content(this, note, validateState) { viewModel.createOrUpdate(it) }
         }
-        handleState(this, lifecycleScope, viewModel, onSuccess)
-
-        Content(this, note, validateState) { onCreateOrUpdate(it) }
     }
-}
 
-@Composable
-private fun handleState(
-    uiState: NoteDetailUiState,
-    lifecycleScope: LifecycleCoroutineScope,
-    viewModel: NoteDetailViewModel,
-    onSuccess: () -> Unit
-) {
-    lifecycleScope.launch {
-        viewModel.state.collectLatest { state ->
-            when (state) {
-                is NoteDetailState.Loading -> uiState.loadingState.value = true
-                is NoteDetailState.Finished -> uiState.loadingState.value = false
-                is NoteDetailState.UpdateOrSaveSuccess -> onSuccess()
-                is NoteDetailState.Error -> throw state.ex
+    @Composable
+    private fun handleState(uiState: NoteDetailUiState) {
+        activity.lifecycleScope.launch {
+            viewModel.state.collectLatest { state ->
+                when (state) {
+                    is NoteDetailState.Loading -> uiState.loadingState.value = true
+                    is NoteDetailState.Finished -> uiState.loadingState.value = false
+                    is NoteDetailState.UpdateOrSaveSuccess -> {
+                        activity.setResult(RESULT_OK)
+                        activity.finish()
+                    }
+                    is NoteDetailState.Error -> throw state.ex
+                }
             }
         }
     }
-}
 
-@Composable
-private fun Content(
-    uiState: NoteDetailUiState,
-    note: Note,
-    validateState: Boolean,
-    onSaveOrUpdate: (note: Note) -> Unit
-) {
-    Box(Modifier.fillMaxSize()) {
-        Scaffold(
-            topBar = {
-                TopBar(validateState) {
-                    note.title = uiState.titleState.value
-                    note.desc = uiState.descState.value
-                    onSaveOrUpdate(note)
-                }
-            },
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = Color.Red)
-        ) {
-            Column(
+    @Composable
+    private fun Content(
+        uiState: NoteDetailUiState,
+        note: Note,
+        validateState: Boolean,
+        onSaveOrUpdate: (note: Note) -> Unit
+    ) {
+        Box(Modifier.fillMaxSize()) {
+            Scaffold(
+                topBar = {
+                    TopBar(validateState) {
+                        note.title = uiState.titleState.value
+                        note.desc = uiState.descState.value
+                        onSaveOrUpdate(note)
+                    }
+                },
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(it)
+                    .background(color = Color.Red)
             ) {
-                TitleTextField(uiState.titleState)
-                DescriptionTextField(uiState.descState)
-            }
-        }
-        Loading(uiState.loadingState)
-    }
-}
-
-@Composable
-private fun TitleTextField(titleState: MutableState<String>) {
-    TextField(
-        modifier = Modifier.fillMaxWidth(),
-        value = titleState.value,
-        onValueChange = { titleState.value = it },
-        label = { Text(text = stringResource(id = R.string.text_title)) },
-        maxLines = 1,
-        colors = defaultTextFieldColors(),
-    )
-}
-
-@Composable
-private fun DescriptionTextField(descState: MutableState<String>) {
-    TextField(
-        modifier = Modifier.fillMaxSize(),
-        value = descState.value,
-        onValueChange = { descState.value = it },
-        label = { Text(text = stringResource(id = R.string.text_desc)) },
-        maxLines = 50,
-        colors = defaultTextFieldColors(),
-    )
-}
-
-@Composable
-private fun defaultTextFieldColors() = TextFieldDefaults.textFieldColors(
-    backgroundColor = Color.Transparent,
-    focusedIndicatorColor = Color.Transparent,
-    unfocusedIndicatorColor = Color.Transparent,
-)
-
-@Composable
-private fun Loading(loadingState: MutableState<Boolean>) {
-    AnimatedVisibility(
-        enter = EnterTransition.None,
-        exit = ExitTransition.None,
-        visible = loadingState.value,
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(BackgroundLoading)
-                .clickable { /* No Implementation */ }
-                .focusable(true)
-        ) { CircularProgressIndicator() }
-    }
-}
-
-@Composable
-private fun TopBar(validateState: Boolean, onSaveOrUpdate: () -> Unit) {
-    TopAppBar(
-        title = {
-            Text(
-                text = stringResource(id = R.string.app_name),
-                style = TextStyle(
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                )
-            )
-        },
-        modifier = Modifier.fillMaxWidth(),
-        elevation = 0.dp,
-        backgroundColor = Color.Transparent,
-        actions = {
-            if (validateState) {
-                IconButton(onClick = { onSaveOrUpdate() }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Archive,
-                        contentDescription = "Save Or Update"
-                    )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(it)
+                ) {
+                    TitleTextField(uiState.titleState)
+                    DescriptionTextField(uiState.descState)
                 }
             }
+            Loading(uiState.loadingState)
         }
+    }
+
+    @Composable
+    private fun TitleTextField(titleState: MutableState<String>) {
+        TextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = titleState.value,
+            onValueChange = { titleState.value = it },
+            label = { Text(text = stringResource(id = R.string.text_title)) },
+            maxLines = 1,
+            colors = defaultTextFieldColors(),
+        )
+    }
+
+    @Composable
+    private fun DescriptionTextField(descState: MutableState<String>) {
+        TextField(
+            modifier = Modifier.fillMaxSize(),
+            value = descState.value,
+            onValueChange = { descState.value = it },
+            label = { Text(text = stringResource(id = R.string.text_desc)) },
+            maxLines = 50,
+            colors = defaultTextFieldColors(),
+        )
+    }
+
+    @Composable
+    private fun defaultTextFieldColors() = TextFieldDefaults.textFieldColors(
+        backgroundColor = Color.Transparent,
+        focusedIndicatorColor = Color.Transparent,
+        unfocusedIndicatorColor = Color.Transparent,
     )
+
+    @Composable
+    private fun Loading(loadingState: MutableState<Boolean>) {
+        AnimatedVisibility(
+            enter = EnterTransition.None,
+            exit = ExitTransition.None,
+            visible = loadingState.value,
+        ) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(BackgroundLoading)
+                    .clickable { /* No Implementation */ }
+                    .focusable(true)
+            ) { CircularProgressIndicator() }
+        }
+    }
+
+    @Composable
+    private fun TopBar(validateState: Boolean, onSaveOrUpdate: () -> Unit) {
+        TopAppBar(
+            title = {
+                Text(
+                    text = stringResource(id = R.string.app_name),
+                    style = TextStyle(
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                )
+            },
+            modifier = Modifier.fillMaxWidth(),
+            elevation = 0.dp,
+            backgroundColor = Color.Transparent,
+            actions = {
+                if (validateState) {
+                    IconButton(onClick = { onSaveOrUpdate() }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Archive,
+                            contentDescription = "Save Or Update"
+                        )
+                    }
+                }
+            }
+        )
+    }
+
 }

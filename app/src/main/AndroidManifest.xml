@@ -41,14 +41,18 @@
         <activity
             android:name=".features.main.MainActivity"
             android:exported="false"
-            android:label="@string/title_activity_main"
-            android:theme="@style/Theme.NoteApp" />
+            android:label="@string/title_activity_main" />
 
         <activity
             android:name=".features.notedetail.NoteDetailActivity"
             android:exported="false"
-            android:label="@string/title_activity_main"
-            android:theme="@style/Theme.NoteApp" />
+            android:label="" />
+
+        <activity
+            android:name=".features.forgotpassword.request.ForgotPasswordActivity"
+            android:exported="false"
+            android:label="" />
+
     </application>
 
 </manifest>

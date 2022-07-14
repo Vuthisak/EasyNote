@@ -24,11 +24,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.easynote.R
-import com.example.easynote.ui.theme.EasyNoteTheme
+import com.example.easynote.base.BaseContent
 
-@Composable
-fun SplashContent() {
-    EasyNoteTheme {
+class SplashContent  : BaseContent() {
+
+    @Composable
+    override fun register() {
         Surface(
             modifier = Modifier
                 .fillMaxSize()
@@ -50,41 +51,42 @@ fun SplashContent() {
             }
         }
     }
-}
 
-@Composable
-private fun AppLogo() {
-    Image(
-        modifier = Modifier.size(size = 140.dp),
-        painter = painterResource(id = R.drawable.img_notes),
-        contentDescription = "logo app"
-    )
-}
-
-@Composable
-private fun AppDescriptionText() {
-    Text(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp),
-        text = stringResource(id = R.string.app_desc),
-        style = TextStyle(
-            textAlign = TextAlign.Center,
-            fontSize = 12.sp,
-            color = MaterialTheme.colors.primary,
-            fontWeight = FontWeight.Light
+    @Composable
+    private fun AppLogo() {
+        Image(
+            modifier = Modifier.size(size = 140.dp),
+            painter = painterResource(id = R.drawable.img_notes),
+            contentDescription = "logo app"
         )
-    )
-}
+    }
 
-@Composable
-private fun AppNameText() {
-    Text(
-        text = stringResource(id = R.string.app_name),
-        style = TextStyle(
-            fontSize = 20.sp,
-            color = MaterialTheme.colors.primary,
-            fontWeight = FontWeight.Bold
+    @Composable
+    private fun AppDescriptionText() {
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
+            text = stringResource(id = R.string.app_desc),
+            style = TextStyle(
+                textAlign = TextAlign.Center,
+                fontSize = 12.sp,
+                color = MaterialTheme.colors.primary,
+                fontWeight = FontWeight.Light
+            )
         )
-    )
+    }
+
+    @Composable
+    private fun AppNameText() {
+        Text(
+            text = stringResource(id = R.string.app_name),
+            style = TextStyle(
+                fontSize = 20.sp,
+                color = MaterialTheme.colors.primary,
+                fontWeight = FontWeight.Bold
+            )
+        )
+    }
+
 }

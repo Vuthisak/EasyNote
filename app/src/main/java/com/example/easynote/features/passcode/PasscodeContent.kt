@@ -9,14 +9,15 @@ import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.example.easynote.base.BaseContent
 
-class PasswordContent(
+class PasscodeContent(
     private val activity: PasscodeActivity,
     private val viewModel: PasscodeViewModel
-) {
+) : BaseContent() {
 
     @Composable
-    fun get() {
+    override fun register() {
         Box(Modifier.fillMaxSize()) {
             Scaffold(
                 modifier = Modifier

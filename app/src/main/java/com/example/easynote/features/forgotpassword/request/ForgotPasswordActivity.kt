@@ -1,14 +1,14 @@
-package com.example.easynote.features.passcode
+package com.example.easynote.features.forgotpassword.request
 
 import com.example.easynote.base.BaseActivity
 import com.example.easynote.base.BaseContent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class PasscodeActivity : BaseActivity() {
+class ForgotPasswordActivity : BaseActivity() {
 
-    private val viewModel: PasscodeViewModel by viewModel()
+    private val viewModel: ForgotPasswordViewModel by viewModel()
     override val content: BaseContent by lazy(LazyThreadSafetyMode.NONE) {
-        PasscodeContent(this, viewModel)
+        ForgotPasswordContent(this, viewModel)
     }
 
 }

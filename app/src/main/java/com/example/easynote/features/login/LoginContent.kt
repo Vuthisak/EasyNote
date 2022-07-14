@@ -46,6 +46,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import com.example.easynote.R
+import com.example.easynote.base.BaseContent
+import com.example.easynote.features.forgotpassword.request.ForgotPasswordActivity
 import com.example.easynote.features.login.listener.LoginListener
 import com.example.easynote.features.login.state.LoginState
 import com.example.easynote.features.login.state.LoginUiState
@@ -57,200 +59,200 @@ import com.example.easynote.util.TextInputField
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-@Composable
-fun LoginContent(
-    activity: LoginActivity,
-    viewModel: LoginViewModel
-) {
-    val loginState = remember { LoginUiState() }
+class LoginContent(
+    private val activity: LoginActivity,
+    private val viewModel: LoginViewModel
+) : BaseContent() {
 
-    handleState(activity, viewModel, loginState)
+    @Composable
+    override fun register() {
+        val loginState = remember { LoginUiState() }
+        handleState(loginState)
 
-    Box(Modifier.fillMaxSize()) {
-        Scaffold(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = Color.Red)
-        ) {
-            Body(loginState, getLoginListener(viewModel))
-            Loading(loadingState = loginState.loadingState)
-        }
-    }
-}
-
-@Composable
-private fun getLoginListener(viewModel: LoginViewModel): LoginListener {
-    val context = LocalContext.current
-    return object : LoginListener {
-        override fun onLoginClicked(username: String, password: String) {
-            viewModel.login(username, password)
-        }
-
-        override fun onCreateAccountClicked() {
-            Intent(context, RegisterActivity::class.java).apply {
-                context.startActivity(this)
+        Box(Modifier.fillMaxSize()) {
+            Scaffold(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = Color.Red)
+            ) {
+                Body(loginState, getLoginListener())
+                Loading(loadingState = loginState.loadingState)
             }
         }
     }
-}
 
-@Composable
-private fun handleState(
-    activity: LoginActivity,
-    viewModel: LoginViewModel,
-    loginState: LoginUiState
-) {
-    activity.lifecycleScope.launch {
-        viewModel.state.collectLatest {
-            when (it) {
-                is LoginState.Loading -> loginState.loadingState.value = true
-                is LoginState.Finished -> loginState.loadingState.value = false
-                is LoginState.Error -> {
-                    Toast.makeText(activity, it.error.message, Toast.LENGTH_SHORT).show()
-                }
-                is LoginState.Success -> {
-                    val intent = Intent(activity, MainActivity::class.java).apply {
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+    @Composable
+    private fun handleState(loginState: LoginUiState) {
+        activity.lifecycleScope.launch {
+            viewModel.state.collectLatest {
+                when (it) {
+                    is LoginState.Loading -> loginState.loadingState.value = true
+                    is LoginState.Finished -> loginState.loadingState.value = false
+                    is LoginState.Error -> {
+                        Toast.makeText(activity, it.error.message, Toast.LENGTH_SHORT).show()
                     }
-                    activity.startActivity(intent)
-                    activity.finish()
+                    is LoginState.Success -> {
+                        val intent = Intent(activity, MainActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        }
+                        activity.startActivity(intent)
+                        activity.finish()
+                    }
                 }
             }
         }
     }
-}
 
-@Composable
-private fun Body(
-    loginUiState: LoginUiState,
-    listener: LoginListener
-) {
-    with(loginUiState) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.Center
-        ) {
-            AppLogo()
+    @Composable
+    private fun Body(loginUiState: LoginUiState, listener: LoginListener) {
+        with(loginUiState) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.Center
+            ) {
+                AppLogo()
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-            UsernameTextField(usernameState)
+                UsernameTextField(usernameState)
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            PasswordTextField(passwordState)
+                PasswordTextField(passwordState)
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            ForgotPasswordText()
+                ForgotPasswordText(listener)
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-            LoginButton(listener, usernameState, passwordState)
+                LoginButton(listener, loginUiState)
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            CreateAccountText(listener)
-        }
-    }
-}
-
-@Composable
-private fun CreateAccountText(listener: LoginListener) {
-    Text(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .clickable { listener.onCreateAccountClicked() },
-        text = stringResource(id = R.string.text_create_account),
-        style = TextStyle(
-            fontWeight = FontWeight.Bold, fontSize = 16.sp, textAlign = TextAlign.Center
-        ),
-        color = Color.Gray
-    )
-}
-
-@Composable
-private fun LoginButton(
-    listener: LoginListener,
-    usernameText: MutableState<String>,
-    passwordText: MutableState<String>
-) {
-    Button(modifier = Modifier
-        .fillMaxWidth()
-        .height(buttonHeight),
-        onClick = {
-            listener.onLoginClicked(usernameText.value, passwordText.value)
-        }
-    ) {
-        Text(text = stringResource(id = R.string.action_login))
-    }
-}
-
-@Composable
-private fun ForgotPasswordText() {
-    Text(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(end = 16.dp),
-        text = stringResource(id = R.string.text_forgot_password),
-        style = TextStyle(
-            fontWeight = FontWeight.Bold,
-            fontSize = 16.sp,
-            textAlign = TextAlign.End
-        ),
-        color = Color.Gray
-    )
-}
-
-@Composable
-private fun AppLogo() {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-        Image(
-            modifier = Modifier.size(size = 140.dp),
-            painter = painterResource(id = R.drawable.img_notes),
-            contentDescription = "logo app"
-        )
-    }
-}
-
-@Composable
-private fun PasswordTextField(passwordText: MutableState<String>) {
-    val passwordVisible = rememberSaveable {
-        mutableStateOf(false)
-    }
-    TextInputField(
-        valueState = passwordText,
-        labelText = stringResource(id = R.string.text_password),
-        keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Done,
-            keyboardType = KeyboardType.Password
-        ),
-        visualTransformation = if (passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
-        trailingIcon = {
-            val image =
-                if (passwordVisible.value) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-
-            // Please provide localized description for accessibility services
-            val description = if (passwordVisible.value) "Hide password" else "Show password"
-
-            IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
-                Icon(imageVector = image, description)
+                CreateAccountText(listener)
             }
         }
-    )
-}
+    }
 
-@Composable
-private fun UsernameTextField(usernameText: MutableState<String>) {
-    TextInputField(
-        valueState = usernameText,
-        labelText = stringResource(id = R.string.text_username),
-        keyboardOptions = KeyboardOptions(
-            capitalization = KeyboardCapitalization.None,
-            imeAction = ImeAction.Next
+    @Composable
+    private fun getLoginListener(): LoginListener {
+        val context = LocalContext.current
+        return object : LoginListener {
+            override fun onLoginClicked(username: String, password: String) {
+                viewModel.login(username, password)
+            }
+
+            override fun onCreateAccountClicked() {
+                Intent(context, RegisterActivity::class.java).apply {
+                    context.startActivity(this)
+                }
+            }
+
+            override fun onForgotPasswordClicked() {
+                Intent(context, ForgotPasswordActivity::class.java).apply {
+                    context.startActivity(this)
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun CreateAccountText(listener: LoginListener) {
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .clickable { listener.onCreateAccountClicked() },
+            text = stringResource(id = R.string.text_create_account),
+            style = TextStyle(
+                fontWeight = FontWeight.Bold, fontSize = 16.sp, textAlign = TextAlign.Center
+            ),
+            color = Color.Gray
         )
-    )
+    }
+
+    @Composable
+    private fun LoginButton(listener: LoginListener, loginState: LoginUiState) {
+        with(loginState) {
+            Button(modifier = Modifier
+                .fillMaxWidth()
+                .height(buttonHeight),
+                onClick = { listener.onLoginClicked(usernameState.value, passwordState.value) }
+            ) {
+                Text(text = stringResource(id = R.string.action_login))
+            }
+        }
+    }
+
+    @Composable
+    private fun ForgotPasswordText(listener: LoginListener) {
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 16.dp)
+                .clickable { listener.onForgotPasswordClicked() },
+            text = stringResource(id = R.string.text_forgot_password),
+            style = TextStyle(
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                textAlign = TextAlign.End
+            ),
+            color = Color.Gray
+        )
+    }
+
+    @Composable
+    private fun AppLogo() {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+            Image(
+                modifier = Modifier.size(size = 140.dp),
+                painter = painterResource(id = R.drawable.img_notes),
+                contentDescription = "logo app"
+            )
+        }
+    }
+
+    @Composable
+    private fun PasswordTextField(passwordText: MutableState<String>) {
+        val passwordVisible = rememberSaveable {
+            mutableStateOf(false)
+        }
+        TextInputField(
+            valueState = passwordText,
+            labelText = stringResource(id = R.string.text_password),
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done,
+                keyboardType = KeyboardType.Password
+            ),
+            visualTransformation = if (passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                val image =
+                    if (passwordVisible.value) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+
+                // Please provide localized description for accessibility services
+                val description = if (passwordVisible.value) "Hide password" else "Show password"
+
+                IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
+                    Icon(imageVector = image, description)
+                }
+            }
+        )
+    }
+
+    @Composable
+    private fun UsernameTextField(usernameText: MutableState<String>) {
+        TextInputField(
+            valueState = usernameText,
+            labelText = stringResource(id = R.string.text_email),
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.None,
+                imeAction = ImeAction.Next
+            )
+        )
+    }
+
 }
