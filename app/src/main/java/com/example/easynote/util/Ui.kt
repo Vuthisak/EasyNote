@@ -48,7 +48,10 @@ fun ArrowBackIcon(clickable: () -> Unit) {
 }
 
 @Composable
-fun Loading(loadingState: MutableState<Boolean>) {
+fun Loading(
+    loadingState: MutableState<Boolean>,
+    backgroundColor: Color = BackgroundLoading
+) {
     AnimatedVisibility(
         visible = loadingState.value,
         enter = EnterTransition.None,
@@ -57,7 +60,7 @@ fun Loading(loadingState: MutableState<Boolean>) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(BackgroundLoading),
+                .background(backgroundColor),
             contentAlignment = Alignment.Center,
         ) {
             CircularProgressIndicator()
@@ -113,16 +116,22 @@ fun TextInputField(
     ),
     visualTransformation: VisualTransformation = VisualTransformation.None,
     trailingIcon: @Composable (() -> Unit)? = null,
+    maxLength: Int? = null
 ) {
     OutlinedTextField(
         modifier = modifier,
         value = valueState.value,
-        onValueChange = { valueState.value = it },
+        onValueChange = {
+            val isValidMaxLength = maxLength != null && it.length <= maxLength
+            if (isValidMaxLength || maxLength == null) {
+                valueState.value = it
+            }
+        },
         label = { Text(text = labelText) },
         maxLines = maxLines,
         colors = colors,
         keyboardOptions = keyboardOptions,
         visualTransformation = visualTransformation,
-        trailingIcon = trailingIcon
+        trailingIcon = trailingIcon,
     )
 }

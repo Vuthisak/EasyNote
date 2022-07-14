@@ -24,12 +24,11 @@ class SplashActivity : BaseActivity() {
 
     private fun goNextScreen() {
         Handler(Looper.getMainLooper()).postDelayed({
-//            if (firebaseAuth.currentUser == null) {
-//                gotoLoginScreen()
-//            } else {
-//                gotoMainScreen()
-//            }
-            gotoLoginScreen()
+            if (firebaseAuth.currentUser == null) {
+                gotoLoginScreen()
+            } else {
+                gotoMainScreen()
+            }
         }, SPLASH_DISPLAY_LENGTH)
     }
 

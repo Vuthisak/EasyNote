@@ -1,5 +1,7 @@
 package com.example.easynote.features.forgotpassword.resetpassword
 
+import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,17 +22,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
 import com.example.easynote.R
 import com.example.easynote.base.BaseContent
+import com.example.easynote.features.forgotpassword.resetpassword.state.ResetPasswordState
 import com.example.easynote.features.forgotpassword.resetpassword.state.ResetPasswordUiState
+import com.example.easynote.features.login.LoginActivity
 import com.example.easynote.ui.theme.buttonHeight
 import com.example.easynote.util.ArrowBackIcon
 import com.example.easynote.util.Loading
 import com.example.easynote.util.TextInputField
 import com.example.easynote.util.TextInputPassword
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class ResetPasswordContent(
-    private val activity: ResetPasswordActivity
+    private val activity: ResetPasswordActivity,
+    private val viewModel: ResetPasswordViewModel
 ) : BaseContent() {
 
     @Composable
@@ -52,7 +60,26 @@ class ResetPasswordContent(
     }
 
     private fun handleState(uiState: ResetPasswordUiState) {
+        activity.lifecycleScope.launch {
+            viewModel.state.collectLatest { state ->
+                when (state) {
+                    is ResetPasswordState.Loading -> uiState.showLoading()
+                    is ResetPasswordState.Finished -> uiState.hideLoading()
+                    is ResetPasswordState.Error -> onError(state.ex)
+                    is ResetPasswordState.Success -> gotoLoginScreen()
+                }
+            }
+        }
+    }
 
+    private fun onError(ex: Throwable) {
+        Toast.makeText(activity, ex.message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun gotoLoginScreen() {
+        val intent = Intent(activity, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        activity.startActivity(intent)
     }
 
     @Composable
@@ -103,7 +130,7 @@ class ResetPasswordContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            ConfirmButton(isButtonEnabled)
+            ConfirmButton(uiState, isButtonEnabled)
         }
     }
 
@@ -134,14 +161,14 @@ class ResetPasswordContent(
     }
 
     @Composable
-    private fun ConfirmButton(isEnabled: Boolean) {
+    private fun ConfirmButton(uiState: ResetPasswordUiState, isEnabled: Boolean) {
         Button(
             modifier = Modifier
                 .height(buttonHeight)
                 .fillMaxWidth(),
             enabled = isEnabled,
             onClick = {
-
+                uiState.run { viewModel.resetPassword(codeState.value, newPasswordState.value) }
             }
         ) {
             Text(text = stringResource(id = R.string.action_confirm))

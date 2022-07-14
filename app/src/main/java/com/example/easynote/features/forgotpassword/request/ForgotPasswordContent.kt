@@ -39,6 +39,8 @@ class ForgotPasswordContent(
     private val viewModel: ForgotPasswordViewModel
 ) : BaseContent() {
 
+    private var isSuccess: Boolean = false
+
     @Composable
     override fun register() {
         val uiState = ForgotPasswordUiState()
@@ -71,6 +73,7 @@ class ForgotPasswordContent(
     }
 
     private fun gotoConfirmCodeScreen() {
+        isSuccess = true
         val intent = Intent(activity, ResetPasswordActivity::class.java)
         activity.startActivity(intent)
     }
@@ -128,11 +131,13 @@ class ForgotPasswordContent(
                 .fillMaxWidth()
                 .height(buttonHeight),
             onClick = {
-                val intent = Intent(activity, ResetPasswordActivity::class.java)
-                activity.startActivity(intent)
-//                viewModel.requestForgotPassword(emailState.value)
+                if (isSuccess) {
+                    gotoConfirmCodeScreen()
+                } else {
+                    viewModel.requestForgotPassword(emailState.value)
+                }
             },
-            enabled = !isEnabled
+            enabled = isEnabled
         ) {
             Text(text = stringResource(id = R.string.action_request))
         }

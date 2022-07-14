@@ -24,7 +24,6 @@ class ForgotPasswordViewModel(
             .onStart {
                 _state.value = ForgotPasswordState.Loading
             }.catch { cause ->
-                throw  cause
                 _state.value = ForgotPasswordState.Error(cause)
             }.map {
                 _state.value = ForgotPasswordState.Success

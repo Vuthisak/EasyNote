@@ -4,5 +4,5 @@ sealed class ResetPasswordState {
     object Loading : ResetPasswordState()
     object Finished : ResetPasswordState()
     object Success : ResetPasswordState()
-    class Error(ex: Throwable) : ResetPasswordState()
+    data class Error(val ex: Throwable) : ResetPasswordState()
 }

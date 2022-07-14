@@ -17,7 +17,7 @@ class ResetPasswordViewModel(
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<ResetPasswordState>(ResetPasswordState.Finished)
-    private val state = _state
+    val state = _state
 
     fun resetPassword(code: String, newPassword: String) = viewModelScope.launch {
         repository
