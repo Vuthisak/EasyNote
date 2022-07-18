@@ -41,7 +41,7 @@ import com.example.easynote.features.forgotpassword.request.ForgotPasswordActivi
 import com.example.easynote.features.login.listener.LoginListener
 import com.example.easynote.features.login.state.LoginState
 import com.example.easynote.features.login.state.LoginUiState
-import com.example.easynote.features.main.MainActivity
+import com.example.easynote.features.passcode.PasscodeActivity
 import com.example.easynote.features.register.RegisterActivity
 import com.example.easynote.ui.theme.buttonHeight
 import com.example.easynote.util.Loading
@@ -80,18 +80,20 @@ class LoginContent(
                 when (it) {
                     is LoginState.Loading -> loginState.showLoading()
                     is LoginState.Finished -> loginState.hideLoading()
-                    is LoginState.Error -> {
-                        Toast.makeText(activity, it.error.message, Toast.LENGTH_SHORT).show()
-                    }
+                    is LoginState.Error -> onError(it.error)
                     is LoginState.Success -> gotoMainScreen()
                 }
             }
         }
     }
 
+    private fun onError(ex: Throwable) {
+        Toast.makeText(activity, ex.message, Toast.LENGTH_SHORT).show()
+    }
+
     private fun gotoMainScreen() {
         with(activity) {
-            val intent = Intent(this, MainActivity::class.java).apply {
+            val intent = Intent(this, PasscodeActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
             startActivity(intent)

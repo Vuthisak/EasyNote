@@ -8,7 +8,7 @@ import org.koin.dsl.module
 
 val repository = module {
     factory<NoteRepository> {
-        NoteRepositoryImpl()
+        NoteRepositoryImpl(get())
     }
 
     factory<AuthRepository> {

@@ -28,7 +28,7 @@ class SplashActivity : BaseActivity() {
             if (firebaseAuth.currentUser == null) {
                 FirebaseAuth.getInstance().signOut()
                 gotoLoginScreen()
-            } else if (preferences.getPasscode().isNullOrBlank()) {
+            } else if (preferences.getPasscode().isBlank()) {
                 gotoPasscodeScreen()
             } else {
                 gotoMainScreen()

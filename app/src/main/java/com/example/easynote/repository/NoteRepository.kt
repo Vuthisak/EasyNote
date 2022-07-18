@@ -1,7 +1,9 @@
 package com.example.easynote.repository
 
+import com.example.easynote.data.LocalPreferences
 import com.example.easynote.entity.Note
 import com.example.easynote.util.await
+import com.example.easynote.util.encryption.SecurityUtils
 import com.example.easynote.util.getOrDefault
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -19,16 +21,18 @@ interface NoteRepository {
     suspend fun removeNote(noteId: String): Flow<Void>
 }
 
-class NoteRepositoryImpl : NoteRepository {
+class NoteRepositoryImpl(
+    private val preferences: LocalPreferences
+) : NoteRepository {
 
     private val firestore: FirebaseFirestore = Firebase.firestore
     private val userId = FirebaseAuth.getInstance().currentUser?.uid
 
     override suspend fun updateNote(note: Note): Flow<Void> = flow {
-//        note.apply {
-//            title = EncryptionManager.encryptData(note.title.getOrDefault())
-//            desc = EncryptionManager.encryptData(note.desc.getOrDefault())
-//        }
+        note.apply {
+            title = SecurityUtils.encrypt(note.title.getOrDefault(), preferences.getPasscode())
+            desc = SecurityUtils.encrypt(note.desc.getOrDefault(), preferences.getPasscode())
+        }
         val result = firestore
             .collection(COLLECTION)
             .document(note.id.getOrDefault())
@@ -49,8 +53,8 @@ class NoteRepositoryImpl : NoteRepository {
     override suspend fun saveNote(note: Note): Flow<Note?> = flow {
         note.apply {
             userId = this@NoteRepositoryImpl.userId
-//            title = EncryptionManager.encryptData(note.title.getOrDefault())
-//            desc = EncryptionManager.encryptData(note.desc.getOrDefault())
+            title = SecurityUtils.encrypt(note.title.getOrDefault(), preferences.getPasscode())
+            desc = SecurityUtils.encrypt(note.desc.getOrDefault(), preferences.getPasscode())
         }
         val result = firestore
             .collection(COLLECTION)
@@ -72,8 +76,14 @@ class NoteRepositoryImpl : NoteRepository {
             .documents.forEach {
                 it.toObject(Note::class.java)?.let { note ->
                     note.id = it.id
-//                    note.title = EncryptionManager.decryptData(note.title.getOrDefault())
-//                    note.desc = EncryptionManager.decryptData(note.desc.getOrDefault())
+                    note.title = SecurityUtils.decrypt(
+                        note.title.getOrDefault(),
+                        preferences.getPasscode()
+                    )
+                    note.desc = SecurityUtils.decrypt(
+                        note.desc.getOrDefault(),
+                        preferences.getPasscode()
+                    )
                     items.add(note)
                 }
             }
