@@ -58,6 +58,11 @@
             android:exported="false"
             android:label="" />
 
+        <activity
+            android:name=".features.passcode.PasscodeActivity"
+            android:exported="false"
+            android:label="" />
+
     </application>
 
 </manifest>

@@ -15,16 +15,10 @@ class LocalPreferencesImpl(
     private val preferences = SecurePreferences(context)
 
     override fun savePasscode(passcode: String) {
-
+        preferences.edit().putString(KEY_PASSCODE, passcode).apply()
     }
 
-    override fun getPasscode(): String? {
-        val encodedPassword = preferences.getString(KEY_PASSCODE, null)
-        if (encodedPassword != null) {
-
-        }
-        return null
-    }
+    override fun getPasscode(): String? = preferences.getString(KEY_PASSCODE, null)
 
     private companion object {
         private const val KEY_PASSCODE = "KEY_PASSWORD"

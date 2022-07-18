@@ -9,6 +9,7 @@ import com.example.easynote.base.BaseActivity
 import com.example.easynote.base.BaseContent
 import com.example.easynote.features.login.LoginActivity
 import com.example.easynote.features.main.MainActivity
+import com.example.easynote.features.passcode.PasscodeActivity
 import com.google.firebase.auth.FirebaseAuth
 
 @SuppressLint("CustomSplashScreen")
@@ -27,22 +28,28 @@ class SplashActivity : BaseActivity() {
             if (firebaseAuth.currentUser == null) {
                 FirebaseAuth.getInstance().signOut()
                 gotoLoginScreen()
+            } else if (preferences.getPasscode().isNullOrBlank()) {
+                gotoPasscodeScreen()
             } else {
                 gotoMainScreen()
             }
         }, SPLASH_DISPLAY_LENGTH)
+        finish()
     }
 
     private fun gotoLoginScreen() {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
-        finish()
+    }
+
+    private fun gotoPasscodeScreen() {
+        val intent = Intent(this, PasscodeActivity::class.java)
+        startActivity(intent)
     }
 
     private fun gotoMainScreen() {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
-        finish()
     }
 
     companion object {

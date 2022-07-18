@@ -1,6 +1,7 @@
 package com.example.easynote
 
 import android.app.Application
+import com.example.easynote.di.appModule
 import com.example.easynote.di.repository
 import com.example.easynote.di.viewModel
 import org.koin.android.ext.koin.androidContext
@@ -14,7 +15,7 @@ class EasyNoteApp : Application() {
         startKoin {
             androidLogger()
             androidContext(this@EasyNoteApp)
-            modules(modules = listOf(viewModel, repository))
+            modules(modules = listOf(appModule, viewModel, repository))
         }
     }
 

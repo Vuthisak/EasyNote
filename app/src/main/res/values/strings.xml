@@ -23,4 +23,6 @@
     <string name="text_new_password">New Password</string>
     <string name="text_confirm_new_password">Confirm New Password</string>
     <string name="action_confirm">Confirm</string>
+    <string name="action_next">Next</string>
+    <string name="text_passcode">Passcode</string>
 </resources>

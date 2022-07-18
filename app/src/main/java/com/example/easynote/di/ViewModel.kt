@@ -29,7 +29,7 @@ val viewModel = module {
     }
 
     viewModel {
-        PasscodeViewModel()
+        PasscodeViewModel(get())
     }
 
     viewModel {
