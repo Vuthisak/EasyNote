@@ -28,7 +28,6 @@ class SplashActivity : BaseActivity() {
     private fun goNextScreen() {
         Handler(Looper.getMainLooper()).postDelayed({
             if (firebaseAuth.currentUser == null) {
-                FirebaseAuth.getInstance().signOut()
                 gotoLoginScreen()
             } else if (preferences.getPasscode().isBlank()) {
                 gotoPasscodeScreen()
@@ -36,22 +35,24 @@ class SplashActivity : BaseActivity() {
                 gotoMainScreen()
             }
         }, SPLASH_DISPLAY_LENGTH)
-        finish()
     }
 
     private fun gotoLoginScreen() {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     private fun gotoPasscodeScreen() {
         val intent = Intent(this, PasscodeActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     private fun gotoMainScreen() {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     companion object {

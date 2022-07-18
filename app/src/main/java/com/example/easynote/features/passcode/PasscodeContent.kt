@@ -2,13 +2,7 @@ package com.example.easynote.features.passcode
 
 import android.content.Intent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -96,7 +90,8 @@ class PasscodeContent(
     private fun PasscodeTextField(uiState: PasscodeUiState) {
         TextInputPassword(
             valueState = uiState.passcodeState,
-            labelText = stringResource(id = R.string.text_passcode)
+            labelText = stringResource(id = R.string.text_passcode),
+            maxLength = 6
         )
     }
 

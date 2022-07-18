@@ -8,24 +8,12 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material.TopAppBar
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,15 +41,20 @@ class NoteDetailContent(
 
     @Composable
     override fun register() {
-        val uiState = remember { mutableStateOf(NoteDetailUiState(note)) }
-        with(uiState.value) {
+        val uiState = remember { NoteDetailUiState(note) }
+        with(uiState) {
             val validateState = remember(titleState.value, descState.value) {
-                titleState.value.trim().isNotBlank() && descState.value.trim().isNotBlank()
+                isFormValid(uiState)
             }
             handleState(this)
             Content(this, note, validateState) { viewModel.createOrUpdate(it) }
         }
     }
+
+    private fun isFormValid(uiState: NoteDetailUiState) =
+        uiState.run {
+            titleState.value.trim().isNotBlank() && descState.value.trim().isNotBlank()
+        }
 
     @Composable
     private fun handleState(uiState: NoteDetailUiState) {

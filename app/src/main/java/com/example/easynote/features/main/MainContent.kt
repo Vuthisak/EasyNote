@@ -288,6 +288,8 @@ class MainContent(
             modifier = Modifier.fillMaxWidth(),
             elevation = 0.dp,
             backgroundColor = Color.Transparent,
+            actions = {
+            }
         )
     }
 
