@@ -7,6 +7,7 @@ import com.securepreferences.SecurePreferences
 interface LocalPreferences {
     fun savePasscode(passcode: String)
     fun getPasscode(): String
+    fun removePasscode()
 }
 
 class LocalPreferencesImpl(
@@ -14,6 +15,10 @@ class LocalPreferencesImpl(
 ) : LocalPreferences {
 
     private val preferences = SecurePreferences(context)
+
+    override fun removePasscode() {
+        preferences.edit().remove(KEY_PASSCODE).apply()
+    }
 
     override fun savePasscode(passcode: String) {
         preferences.edit().putString(KEY_PASSCODE, passcode).apply()

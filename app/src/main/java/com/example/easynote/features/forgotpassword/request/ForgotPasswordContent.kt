@@ -3,13 +3,7 @@ package com.example.easynote.features.forgotpassword.request
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -67,7 +61,7 @@ class ForgotPasswordContent(
                     is ForgotPasswordState.Loading -> uiState.showLoading()
                     is ForgotPasswordState.Finished -> uiState.hideLoading()
                     is ForgotPasswordState.Success -> gotoConfirmCodeScreen()
-                    is ForgotPasswordState.Error -> onError(state.ex)
+                    is ForgotPasswordState.Error -> onError()
                 }
             }
         }
@@ -79,8 +73,9 @@ class ForgotPasswordContent(
         activity.startActivity(intent)
     }
 
-    private fun onError(ex: Throwable) {
-        Toast.makeText(activity, ex.message, Toast.LENGTH_SHORT).show()
+    private fun onError() {
+        Toast.makeText(activity, R.string.msg_email_sent, Toast.LENGTH_SHORT).show()
+        activity.finish()
     }
 
     @Composable

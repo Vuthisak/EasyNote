@@ -2,23 +2,23 @@ package com.example.easynote.features.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.easynote.data.LocalPreferences
 import com.example.easynote.features.main.state.MainState
 import com.example.easynote.repository.NoteRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class MainViewModel(
-    private val noteRepository: NoteRepository
+    private val noteRepository: NoteRepository,
+    private val preferences: LocalPreferences
 ) : ViewModel() {
 
     private var _state = MutableStateFlow<MainState>(MainState.Finished)
     val state = _state
+
+    fun logout() {
+        preferences.removePasscode()
+    }
 
     fun removeNote(noteId: String) = viewModelScope.launch {
         noteRepository.removeNote(noteId)
