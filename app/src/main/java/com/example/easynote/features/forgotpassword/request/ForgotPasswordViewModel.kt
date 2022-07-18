@@ -20,7 +20,7 @@ class ForgotPasswordViewModel(
     val state = _state
 
     fun requestForgotPassword(email: String) = viewModelScope.launch {
-        repository.requestResetPassword(email)
+        repository.requestResetPassword(email.trim())
             .onStart {
                 _state.value = ForgotPasswordState.Loading
             }.catch { cause ->

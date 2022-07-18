@@ -2,7 +2,9 @@ package com.example.easynote.features.main
 
 import android.app.Activity
 import android.content.Intent
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
@@ -41,8 +43,6 @@ import androidx.compose.material.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,13 +60,13 @@ import com.example.easynote.R
 import com.example.easynote.base.BaseContent
 import com.example.easynote.entity.Note
 import com.example.easynote.features.main.state.MainState
+import com.example.easynote.features.main.state.MainUiState
 import com.example.easynote.features.notedetail.NoteDetailActivity
 import com.example.easynote.features.notedetail.NoteDetailActivity.Companion.EXTRA_NOTE
 import com.example.easynote.util.Loading
 import com.example.easynote.util.formattedDate
 import com.example.easynote.util.getOrDefault
 import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -81,9 +81,7 @@ class MainContent(
         val launcher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.StartActivityForResult(),
         ) {
-            if (it.resultCode == Activity.RESULT_OK) {
-                viewModel.getNotes(true)
-            }
+            getNotesIfResultOk(it)
         }
         Scaffold(
             floatingActionButton = {
@@ -105,53 +103,64 @@ class MainContent(
         }
     }
 
+    private fun getNotesIfResultOk(it: ActivityResult) {
+        if (it.resultCode == Activity.RESULT_OK) {
+            viewModel.getNotes(true)
+        }
+    }
+
     @Composable
     private fun HandleState(modifier: Modifier, onItemClick: (note: Note) -> Unit) {
-        val items = remember { mutableStateListOf<Note>() }
-        val isRefreshingState = rememberSwipeRefreshState(false)
-        val loadingState = remember { mutableStateOf(true) }
-        val visibleState = remember { mutableStateOf(false) }
+        val uiState = remember { MainUiState() }
         activity.lifecycleScope.launch {
             viewModel.state.collectLatest { state ->
                 when (state) {
-                    is MainState.Finished -> loadingState.value = false
-                    is MainState.Loading -> {
-                        visibleState.value = false
-                        loadingState.value = !isRefreshingState.isRefreshing
-                    }
-                    is MainState.OnGetListSuccess -> {
-                        loadingState.value = false
-                        isRefreshingState.isRefreshing = false
-                        visibleState.value = true
-                        if (state.isReloaded) {
-                            items.clear()
-                        }
-                        items.addAll(state.items)
-                    }
-                    is MainState.Error -> {}
+                    is MainState.Finished -> uiState.hideLoading()
+                    is MainState.Loading -> showLoading(uiState)
+                    is MainState.OnGetListSuccess -> onSuccess(uiState, state)
+                    is MainState.Error -> onError(state.ex)
                 }
             }
         }
         Box(modifier = modifier.fillMaxSize()) {
-            Loading(loadingState)
+            Loading(uiState.loadingState)
             AnimatedVisibility(
-                visible = visibleState.value,
+                visible = uiState.visibleState.value,
                 enter = EnterTransition.None,
                 exit = ExitTransition.None
             ) {
                 SwipeRefresh(
-                    state = isRefreshingState,
+                    state = uiState.isRefreshingState,
                     onRefresh = {
-                        visibleState.value = false
-                        items.clear()
+                        uiState.visibleState.value = false
+                        uiState.items.clear()
                         viewModel.getNotes(true)
                     }) {
-                    BodyContent(items, onItemClick = onItemClick, onDelete = {
+                    BodyContent(uiState.items, onItemClick = onItemClick, onDelete = {
                         viewModel.removeNote(it.id.getOrDefault())
                     })
                 }
             }
         }
+    }
+
+    private fun showLoading(uiState: MainUiState) {
+        uiState.visibleState.value = false
+        uiState.loadingState.value = !uiState.isRefreshingState.isRefreshing
+    }
+
+    private fun onSuccess(
+        uiState: MainUiState,
+        state: MainState.OnGetListSuccess
+    ) {
+        uiState.isRefreshingState.isRefreshing = false
+        uiState.visibleState.value = true
+        if (state.isReloaded) uiState.items.clear()
+        uiState.items.addAll(state.items)
+    }
+
+    private fun onError(ex: Throwable?) {
+        Toast.makeText(activity, ex?.message, Toast.LENGTH_SHORT).show()
     }
 
     @Composable

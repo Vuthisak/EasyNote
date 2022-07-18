@@ -25,6 +25,7 @@ class SplashActivity : BaseActivity() {
     private fun goNextScreen() {
         Handler(Looper.getMainLooper()).postDelayed({
             if (firebaseAuth.currentUser == null) {
+                FirebaseAuth.getInstance().signOut()
                 gotoLoginScreen()
             } else {
                 gotoMainScreen()

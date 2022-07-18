@@ -176,7 +176,9 @@ class LoginContent(
             Button(modifier = Modifier
                 .fillMaxWidth()
                 .height(buttonHeight),
-                onClick = { listener.onLoginClicked(usernameState.value, passwordState.value) }
+                onClick = {
+                    listener.onLoginClicked(usernameState.value.trim(), passwordState.value)
+                }
             ) {
                 Text(text = stringResource(id = R.string.action_login))
             }

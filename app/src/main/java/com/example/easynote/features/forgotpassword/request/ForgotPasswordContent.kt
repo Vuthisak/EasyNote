@@ -31,6 +31,7 @@ import com.example.easynote.ui.theme.buttonHeight
 import com.example.easynote.util.ArrowBackIcon
 import com.example.easynote.util.Loading
 import com.example.easynote.util.TextInputField
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -134,6 +135,7 @@ class ForgotPasswordContent(
                 if (isSuccess) {
                     gotoConfirmCodeScreen()
                 } else {
+                    FirebaseAuth.getInstance().signOut()
                     viewModel.requestForgotPassword(emailState.value)
                 }
             },
