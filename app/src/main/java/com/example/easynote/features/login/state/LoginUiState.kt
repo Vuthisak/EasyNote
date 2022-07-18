@@ -6,6 +6,5 @@ import com.example.easynote.base.BaseUiState
 
 class LoginUiState(
     val usernameState: MutableState<String> = mutableStateOf(""),
-    val passwordState: MutableState<String> = mutableStateOf(""),
-    override val loadingState: MutableState<Boolean> = mutableStateOf(false)
-): BaseUiState(loadingState)
+    val passwordState: MutableState<String> = mutableStateOf("")
+) : BaseUiState()

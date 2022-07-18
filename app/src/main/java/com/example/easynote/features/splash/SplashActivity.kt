@@ -16,7 +16,9 @@ import com.google.firebase.auth.FirebaseAuth
 class SplashActivity : BaseActivity() {
 
     private val firebaseAuth = FirebaseAuth.getInstance()
-    override val content: BaseContent = SplashContent()
+    override val content: BaseContent by lazy(LazyThreadSafetyMode.NONE) {
+        SplashContent()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

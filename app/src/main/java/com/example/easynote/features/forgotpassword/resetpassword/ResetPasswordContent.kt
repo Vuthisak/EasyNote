@@ -103,10 +103,7 @@ class ResetPasswordContent(
                 newPasswordState.value,
                 confirmNewPasswordState.value
             ) {
-                codeState.value.isNotEmpty()
-                        && newPasswordState.value.isNotEmpty()
-                        && confirmNewPasswordState.value.isNotEmpty()
-                        && newPasswordState.value == confirmNewPasswordState.value
+                isFormValid(uiState)
             }
         }
 
@@ -133,6 +130,14 @@ class ResetPasswordContent(
             ConfirmButton(uiState, isButtonEnabled)
         }
     }
+
+    private fun isFormValid(uiState: ResetPasswordUiState) =
+        uiState.run {
+            (codeState.value.isNotEmpty()
+                    && newPasswordState.value.isNotEmpty()
+                    && confirmNewPasswordState.value.isNotEmpty()
+                    && newPasswordState.value == confirmNewPasswordState.value)
+        }
 
     @Composable
     private fun CodeTextField(codeState: MutableState<String>) {

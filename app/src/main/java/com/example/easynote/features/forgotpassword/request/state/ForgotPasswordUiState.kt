@@ -5,6 +5,5 @@ import androidx.compose.runtime.mutableStateOf
 import com.example.easynote.base.BaseUiState
 
 data class ForgotPasswordUiState(
-    val emailState: MutableState<String> = mutableStateOf(""),
-    override val loadingState: MutableState<Boolean> = mutableStateOf(false)
-) : BaseUiState(loadingState)
+    val emailState: MutableState<String> = mutableStateOf("")
+) : BaseUiState()
