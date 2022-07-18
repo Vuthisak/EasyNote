@@ -149,17 +149,55 @@ class LoginContent(
     }
 
     @Composable
-    private fun CreateAccountText(listener: LoginListener) {
-        Text(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .clickable { listener.onCreateAccountClicked() },
-            text = stringResource(id = R.string.text_create_account),
-            style = TextStyle(
-                fontWeight = FontWeight.Bold, fontSize = 16.sp, textAlign = TextAlign.Center
-            ),
-            color = Color.Gray
+    private fun AppLogo() {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+            Image(
+                modifier = Modifier.size(size = 140.dp),
+                painter = painterResource(id = R.drawable.img_notes),
+                contentDescription = "logo app"
+            )
+        }
+    }
+
+    @Composable
+    private fun UsernameTextField(usernameText: MutableState<String>) {
+        TextInputField(
+            valueState = usernameText,
+            labelText = stringResource(id = R.string.text_email),
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.None,
+                imeAction = ImeAction.Next
+            )
         )
+    }
+
+    @Composable
+    private fun PasswordTextField(passwordText: MutableState<String>) {
+        TextInputPassword(
+            valueState = passwordText,
+            labelText = stringResource(id = R.string.text_password)
+        )
+    }
+
+    @Composable
+    private fun ForgotPasswordText(listener: LoginListener) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Text(
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .clickable { listener.onForgotPasswordClicked() },
+                text = stringResource(id = R.string.text_forgot_password),
+                style = TextStyle(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.End
+                ),
+                color = Color.Gray,
+            )
+        }
     }
 
     @Composable
@@ -178,50 +216,22 @@ class LoginContent(
     }
 
     @Composable
-    private fun ForgotPasswordText(listener: LoginListener) {
-        Text(
-            modifier = Modifier
-                .padding(end = 16.dp)
-                .clickable { listener.onForgotPasswordClicked() },
-            text = stringResource(id = R.string.text_forgot_password),
-            style = TextStyle(
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                textAlign = TextAlign.End
-            ),
-            color = Color.Gray
-        )
-    }
-
-    @Composable
-    private fun AppLogo() {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-            Image(
-                modifier = Modifier.size(size = 140.dp),
-                painter = painterResource(id = R.drawable.img_notes),
-                contentDescription = "logo app"
+    private fun CreateAccountText(listener: LoginListener) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .clickable { listener.onCreateAccountClicked() },
+                text = stringResource(id = R.string.text_create_account),
+                style = TextStyle(
+                    fontWeight = FontWeight.Bold, fontSize = 16.sp, textAlign = TextAlign.Center
+                ),
+                color = Color.Gray
             )
         }
-    }
-
-    @Composable
-    private fun PasswordTextField(passwordText: MutableState<String>) {
-        TextInputPassword(
-            valueState = passwordText,
-            labelText = stringResource(id = R.string.text_password)
-        )
-    }
-
-    @Composable
-    private fun UsernameTextField(usernameText: MutableState<String>) {
-        TextInputField(
-            valueState = usernameText,
-            labelText = stringResource(id = R.string.text_email),
-            keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.None,
-                imeAction = ImeAction.Next
-            )
-        )
     }
 
 }
