@@ -7,7 +7,7 @@ val Purple200 = Color(0xFFBB86FC)
 val Purple500 = Color(0xE6DE00EE)
 val Purple700 = Color(0xFF3700B3)
 val Teal200 = Color(0xFF03DAC5)
-val BackgroundLoading = Color(0x80615E5E)
+val BackgroundLoading = Color(0x33615E5E)
 
 fun getRandomColor(): Long {
     val colors =
