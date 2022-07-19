@@ -35,7 +35,7 @@ class AuthRepositoryImpl : AuthRepository {
 
     override suspend fun requestResetPassword(email: String): Flow<Void> = flow<Void> {
         val result = firebaseAuth
-            .sendPasswordResetEmail(email)
+            .sendPasswordResetEmail(email.trim())
             .await()
         emit(result)
     }.flowOn(Dispatchers.IO)
