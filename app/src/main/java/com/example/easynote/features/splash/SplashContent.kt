@@ -62,6 +62,18 @@ class SplashContent  : BaseContent() {
     }
 
     @Composable
+    private fun AppNameText() {
+        Text(
+            text = stringResource(id = R.string.app_name),
+            style = TextStyle(
+                fontSize = 20.sp,
+                color = MaterialTheme.colors.primary,
+                fontWeight = FontWeight.Bold
+            )
+        )
+    }
+
+    @Composable
     private fun AppDescriptionText() {
         Text(
             modifier = Modifier
@@ -73,18 +85,6 @@ class SplashContent  : BaseContent() {
                 fontSize = 12.sp,
                 color = MaterialTheme.colors.primary,
                 fontWeight = FontWeight.Light
-            )
-        )
-    }
-
-    @Composable
-    private fun AppNameText() {
-        Text(
-            text = stringResource(id = R.string.app_name),
-            style = TextStyle(
-                fontSize = 20.sp,
-                color = MaterialTheme.colors.primary,
-                fontWeight = FontWeight.Bold
             )
         )
     }

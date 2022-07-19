@@ -88,19 +88,24 @@ class RegisterContent(
                 when (state) {
                     is RegisterState.Loading -> registerUiState.showLoading()
                     is RegisterState.Finished -> registerUiState.hideLoading()
-                    is RegisterState.Error -> {
-                        Toast.makeText(activity, state.ex.message, Toast.LENGTH_SHORT).show()
-                    }
-                    is RegisterState.RegisteredSuccess -> {
-                        val intent = Intent(activity, MainActivity::class.java).apply {
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        }
-                        intent.flags = FLAG_ACTIVITY_CLEAR_TOP
-                        activity.startActivity(intent)
-                    }
+                    is RegisterState.Error -> onError(state.ex)
+                    is RegisterState.RegisteredSuccess -> onSuccess()
                 }
             }
         }
+    }
+
+    private fun onError(ex: Throwable) {
+        Toast.makeText(activity, ex.message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun onSuccess() {
+        val intent = Intent(activity, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        intent.flags = FLAG_ACTIVITY_CLEAR_TOP
+        activity.startActivity(intent)
+        activity.finish()
     }
 
     @Composable
@@ -124,9 +129,7 @@ class RegisterContent(
         val isEnabledButton =
             registerUiState.run {
                 remember(passwordState.value, confirmPasswordState.value) {
-                    passwordState.value.isNotEmpty()
-                            && confirmPasswordState.value.isNotEmpty()
-                            && passwordState.value == confirmPasswordState.value
+                    isFormValid(registerUiState)
                 }
 
             }
@@ -155,25 +158,31 @@ class RegisterContent(
         }
     }
 
+    private fun isFormValid(uiState: RegisterUiState) =
+        uiState.run {
+            (passwordState.value.isNotEmpty()
+                    && confirmPasswordState.value.isNotEmpty()
+                    && passwordState.value == confirmPasswordState.value)
+        }
+
+    @Composable
+    private fun UsernameTextField(usernameText: MutableState<String>) {
+        TextInputField(
+            valueState = usernameText,
+            labelText = stringResource(id = R.string.text_email),
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.None,
+                imeAction = ImeAction.Next
+            )
+        )
+    }
+
     @Composable
     private fun ConfirmPasswordTextField(registerUiState: RegisterUiState) {
         PasswordTextField(
             passwordText = registerUiState.confirmPasswordState,
             labelText = stringResource(id = R.string.text_confirm_password)
         )
-    }
-
-    @Composable
-    private fun RegisterButton(onRegisterClicked: () -> Unit, isEnabledButton: Boolean) {
-        Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(buttonHeight),
-            onClick = onRegisterClicked,
-            enabled = isEnabledButton
-        ) {
-            Text(text = stringResource(id = R.string.text_register))
-        }
     }
 
     @Composable
@@ -211,15 +220,16 @@ class RegisterContent(
         }
 
     @Composable
-    private fun UsernameTextField(usernameText: MutableState<String>) {
-        TextInputField(
-            valueState = usernameText,
-            labelText = stringResource(id = R.string.text_email),
-            keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.None,
-                imeAction = ImeAction.Next
-            )
-        )
+    private fun RegisterButton(onRegisterClicked: () -> Unit, isEnabledButton: Boolean) {
+        Button(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(buttonHeight),
+            onClick = onRegisterClicked,
+            enabled = isEnabledButton
+        ) {
+            Text(text = stringResource(id = R.string.text_register))
+        }
     }
 
 }
