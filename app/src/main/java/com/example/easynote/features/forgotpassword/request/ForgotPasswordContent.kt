@@ -1,9 +1,14 @@
 package com.example.easynote.features.forgotpassword.request
 
-import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -20,7 +25,6 @@ import com.example.easynote.R
 import com.example.easynote.base.BaseContent
 import com.example.easynote.features.forgotpassword.request.state.ForgotPasswordState
 import com.example.easynote.features.forgotpassword.request.state.ForgotPasswordUiState
-import com.example.easynote.features.forgotpassword.resetpassword.ResetPasswordActivity
 import com.example.easynote.ui.theme.buttonHeight
 import com.example.easynote.util.ArrowBackIcon
 import com.example.easynote.util.Loading
@@ -60,21 +64,19 @@ class ForgotPasswordContent(
                 when (state) {
                     is ForgotPasswordState.Loading -> uiState.showLoading()
                     is ForgotPasswordState.Finished -> uiState.hideLoading()
-                    is ForgotPasswordState.Success -> gotoConfirmCodeScreen()
-                    is ForgotPasswordState.Error -> onError()
+                    is ForgotPasswordState.Success -> onSuccess()
+                    is ForgotPasswordState.Error -> onError(state.ex)
                 }
             }
         }
     }
 
-    private fun gotoConfirmCodeScreen() {
-        isSuccess = true
-        val intent = Intent(activity, ResetPasswordActivity::class.java)
-        activity.startActivity(intent)
+    private fun onSuccess() {
+        Toast.makeText(activity, R.string.msg_email_sent, Toast.LENGTH_SHORT).show()
     }
 
-    private fun onError() {
-        Toast.makeText(activity, R.string.msg_email_sent, Toast.LENGTH_SHORT).show()
+    private fun onError(ex: Throwable) {
+        Toast.makeText(activity, ex.message, Toast.LENGTH_SHORT).show()
         activity.finish()
     }
 
@@ -128,7 +130,7 @@ class ForgotPasswordContent(
                 .height(buttonHeight),
             onClick = {
                 if (isSuccess) {
-                    gotoConfirmCodeScreen()
+                    onSuccess()
                 } else {
                     FirebaseAuth.getInstance().signOut()
                     viewModel.requestForgotPassword(emailState.value)
