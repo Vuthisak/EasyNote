@@ -137,6 +137,6 @@ fun TextInputField(
         keyboardOptions = keyboardOptions,
         visualTransformation = visualTransformation,
         trailingIcon = trailingIcon,
-        keyboardActions = keyboardActions
+        keyboardActions = keyboardActions,
     )
 }

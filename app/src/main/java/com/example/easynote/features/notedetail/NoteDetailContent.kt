@@ -20,7 +20,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Archive
@@ -117,7 +116,7 @@ class NoteDetailContent(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(it)
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
                     TitleTextField(uiState.titleState)
                     DescriptionTextField(uiState)
@@ -132,9 +131,10 @@ class NoteDetailContent(
         TextInputField(
             valueState = titleState,
             labelText = stringResource(id = R.string.text_title),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusable(true),
             maxLines = 1,
-            colors = defaultTextFieldColors(),
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Sentences,
                 imeAction = ImeAction.Next
@@ -147,9 +147,8 @@ class NoteDetailContent(
         TextInputField(
             valueState = uiState.descState,
             labelText = stringResource(id = R.string.text_desc),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxSize(),
             maxLines = 1,
-            colors = defaultTextFieldColors(),
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Sentences,
                 imeAction = ImeAction.Done
@@ -165,13 +164,6 @@ class NoteDetailContent(
             })
         )
     }
-
-    @Composable
-    private fun defaultTextFieldColors() = TextFieldDefaults.textFieldColors(
-        backgroundColor = Color.Transparent,
-        focusedIndicatorColor = Color.Transparent,
-        unfocusedIndicatorColor = Color.Transparent,
-    )
 
     @Composable
     private fun Loading(loadingState: MutableState<Boolean>) {
