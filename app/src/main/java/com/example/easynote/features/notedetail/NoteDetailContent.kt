@@ -156,7 +156,9 @@ class NoteDetailContent(
             ),
             keyboardActions = KeyboardActions(onDone = {
                 if (isFormValid(uiState)) {
-                    viewModel.createOrUpdate(uiState.getNote())
+                    note.title = uiState.titleState.value
+                    note.desc = uiState.descState.value
+                    viewModel.createOrUpdate(note)
                 } else {
                     Toast.makeText(activity, "Please input data", Toast.LENGTH_SHORT).show()
                 }
