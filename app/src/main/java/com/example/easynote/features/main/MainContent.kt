@@ -316,7 +316,7 @@ class MainContent(
                         text = stringResource(id = R.string.text_logout),
                         fontSize = 16.sp
                     )
-                    Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
                 }
             }
         )
