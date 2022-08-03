@@ -36,7 +36,7 @@ object SecurityUtils {
             val result = cipher.doFinal(encryptedData)
             String(result)
         } catch (ex: Exception) {
-            null
+            data
         }
     }
 
