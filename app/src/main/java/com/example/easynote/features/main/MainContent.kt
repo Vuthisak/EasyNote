@@ -2,7 +2,7 @@ package com.example.easynote.features.main
 
 import android.app.Activity
 import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
+import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -307,7 +307,7 @@ class MainContent(
                 IconButton(onClick = { shouldShowDialog.value = true }) {
                     Icon(
                         imageVector = Icons.Outlined.PowerSettingsNew,
-                        contentDescription = "Save Or Update"
+                        contentDescription = "Logout"
                     )
                 }
             }
@@ -337,7 +337,7 @@ class MainContent(
 
     private fun gotoLoginScreen() {
         val intent = Intent(activity, LoginActivity::class.java)
-        intent.flags = FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_NEW_TASK
+        intent.flags = FLAG_ACTIVITY_CLEAR_TASK or FLAG_ACTIVITY_NEW_TASK
         activity.startActivity(intent)
     }
 

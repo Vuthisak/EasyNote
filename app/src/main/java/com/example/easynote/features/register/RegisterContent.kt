@@ -1,7 +1,8 @@
 package com.example.easynote.features.register
 
 import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
+import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -101,9 +102,8 @@ class RegisterContent(
 
     private fun onSuccess() {
         val intent = Intent(activity, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            flags = FLAG_ACTIVITY_CLEAR_TASK or FLAG_ACTIVITY_NEW_TASK
         }
-        intent.flags = FLAG_ACTIVITY_CLEAR_TOP
         activity.startActivity(intent)
         activity.finish()
     }

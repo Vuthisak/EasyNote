@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.sp
 import com.example.easynote.R
 import com.example.easynote.base.BaseContent
 
-class SplashContent  : BaseContent() {
+class SplashContent : BaseContent() {
 
     @Composable
     override fun register() {

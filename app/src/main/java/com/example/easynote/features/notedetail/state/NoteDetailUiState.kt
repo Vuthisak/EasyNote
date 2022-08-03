@@ -16,4 +16,8 @@ data class NoteDetailUiState(
         descState.value = note.desc.getOrDefault()
     }
 
+    fun getNote(): Note {
+        return Note(title = titleState.value, descState.value)
+    }
+
 }

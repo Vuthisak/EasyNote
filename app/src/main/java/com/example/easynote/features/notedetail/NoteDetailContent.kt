@@ -8,8 +8,20 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.runtime.Composable
@@ -21,6 +33,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
@@ -30,6 +44,7 @@ import com.example.easynote.entity.Note
 import com.example.easynote.features.notedetail.state.NoteDetailState
 import com.example.easynote.features.notedetail.state.NoteDetailUiState
 import com.example.easynote.ui.theme.BackgroundLoading
+import com.example.easynote.util.TextInputField
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -105,7 +120,7 @@ class NoteDetailContent(
                         .padding(it)
                 ) {
                     TitleTextField(uiState.titleState)
-                    DescriptionTextField(uiState.descState)
+                    DescriptionTextField(uiState)
                 }
             }
             Loading(uiState.loadingState)
@@ -114,25 +129,38 @@ class NoteDetailContent(
 
     @Composable
     private fun TitleTextField(titleState: MutableState<String>) {
-        TextField(
+        TextInputField(
+            valueState = titleState,
+            labelText = stringResource(id = R.string.text_title),
             modifier = Modifier.fillMaxWidth(),
-            value = titleState.value,
-            onValueChange = { titleState.value = it },
-            label = { Text(text = stringResource(id = R.string.text_title)) },
             maxLines = 1,
             colors = defaultTextFieldColors(),
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Sentences,
+                imeAction = ImeAction.Next
+            )
         )
     }
 
     @Composable
-    private fun DescriptionTextField(descState: MutableState<String>) {
-        TextField(
-            modifier = Modifier.fillMaxSize(),
-            value = descState.value,
-            onValueChange = { descState.value = it },
-            label = { Text(text = stringResource(id = R.string.text_desc)) },
-            maxLines = 50,
+    private fun DescriptionTextField(uiState: NoteDetailUiState) {
+        TextInputField(
+            valueState = uiState.descState,
+            labelText = stringResource(id = R.string.text_desc),
+            modifier = Modifier.fillMaxWidth(),
+            maxLines = 1,
             colors = defaultTextFieldColors(),
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Sentences,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(onDone = {
+                if (isFormValid(uiState)) {
+                    viewModel.createOrUpdate(uiState.getNote())
+                } else {
+                    Toast.makeText(activity, "Please input data", Toast.LENGTH_SHORT).show()
+                }
+            })
         )
     }
 
