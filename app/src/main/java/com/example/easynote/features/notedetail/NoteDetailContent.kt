@@ -10,24 +10,31 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -116,9 +123,11 @@ class NoteDetailContent(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 4.dp, vertical = 8.dp)
                 ) {
                     TitleTextField(uiState.titleState)
+                    Divider(modifier = Modifier.padding(horizontal = 12.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                     DescriptionTextField(uiState)
                 }
             }
@@ -128,18 +137,23 @@ class NoteDetailContent(
 
     @Composable
     private fun TitleTextField(titleState: MutableState<String>) {
+        val focusRequester = remember { FocusRequester() }
         TextInputField(
             valueState = titleState,
             labelText = stringResource(id = R.string.text_title),
             modifier = Modifier
                 .fillMaxWidth()
-                .focusable(true),
+                .focusRequester(focusRequester),
             maxLines = 1,
+            colors = defaultTextFieldColors(),
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Sentences,
                 imeAction = ImeAction.Next
             )
         )
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
+        }
     }
 
     @Composable
@@ -149,6 +163,7 @@ class NoteDetailContent(
             labelText = stringResource(id = R.string.text_desc),
             modifier = Modifier.fillMaxSize(),
             maxLines = 1,
+            colors = defaultTextFieldColors(),
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Sentences,
                 imeAction = ImeAction.Done
@@ -164,6 +179,13 @@ class NoteDetailContent(
             })
         )
     }
+
+    @Composable
+    private fun defaultTextFieldColors() = TextFieldDefaults.textFieldColors(
+        backgroundColor = Color.Transparent,
+        focusedIndicatorColor = Color.Transparent,
+        unfocusedIndicatorColor = Color.Transparent,
+    )
 
     @Composable
     private fun Loading(loadingState: MutableState<Boolean>) {
