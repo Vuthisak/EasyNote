@@ -15,6 +15,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldColors
@@ -30,20 +31,40 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.easynote.ui.theme.BackgroundLoading
 
 @Composable
-fun DefaultText(text: String, fontSize: TextUnit = 16.sp, fontWeight: FontWeight? = null) {
-    Text(text = text, fontSize = fontSize, fontWeight = fontWeight)
+fun DefaultText(
+    modifier: Modifier = Modifier,
+    text: String,
+    fontSize: TextUnit = 16.sp,
+    fontWeight: FontWeight? = null,
+    fontStyle: FontStyle? = null,
+    style: TextStyle = LocalTextStyle.current,
+    maxLines: Int = Int.MAX_VALUE,
+    overflow: TextOverflow = TextOverflow.Clip,
+) {
+    Text(
+        modifier = modifier,
+        text = text,
+        fontSize = fontSize,
+        fontWeight = fontWeight,
+        fontStyle = fontStyle,
+        style = style,
+        overflow = overflow
+    )
 }
 
 @Composable

@@ -41,7 +41,8 @@
         <activity
             android:name=".features.main.MainActivity"
             android:exported="false"
-            android:label="@string/title_activity_main" />
+            android:label="@string/title_activity_main"
+            android:launchMode="singleTop" />
 
         <activity
             android:name=".features.notedetail.NoteDetailActivity"

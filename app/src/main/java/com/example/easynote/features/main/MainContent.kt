@@ -40,7 +40,6 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.SwipeToDismiss
-import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
@@ -74,6 +73,7 @@ import com.example.easynote.features.main.state.MainState
 import com.example.easynote.features.main.state.MainUiState
 import com.example.easynote.features.notedetail.NoteDetailActivity
 import com.example.easynote.features.notedetail.NoteDetailActivity.Companion.EXTRA_NOTE
+import com.example.easynote.features.passcode.PasscodeActivity
 import com.example.easynote.util.DefaultText
 import com.example.easynote.util.Loading
 import com.example.easynote.util.formattedDate
@@ -195,7 +195,7 @@ class MainContent(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text(
+            DefaultText(
                 text = stringResource(id = R.string.no_data),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 24.sp
@@ -211,7 +211,7 @@ class MainContent(
         onItemClick: (note: Note) -> Unit
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Text(
+            DefaultText(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .padding(top = 16.dp, bottom = 8.dp),
@@ -289,12 +289,11 @@ class MainContent(
     private fun TopBar() {
         TopAppBar(
             title = {
-                Text(
+                DefaultText(
                     text = stringResource(id = R.string.app_name),
                     style = TextStyle(
                         color = Color.Black,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
                     )
                 )
             },
@@ -309,8 +308,8 @@ class MainContent(
 
     @Composable
     private fun TopAppActions() {
-        val shouldShowDialog = remember { mutableStateOf(false) }
-        if (shouldShowDialog.value) showAlertDialog { shouldShowDialog.value = false }
+        var showDialog by remember { mutableStateOf(false) }
+        if (showDialog) showAlertDialog { showDialog = false }
         var showMenu by remember { mutableStateOf(false) }
         IconButton(onClick = { showMenu = !showMenu }) {
             Icon(imageVector = Icons.Default.MoreVert, contentDescription = "")
@@ -319,8 +318,15 @@ class MainContent(
             expanded = showMenu,
             onDismissRequest = { showMenu = false }
         ) {
-            DropDownSignOutMenuItem { shouldShowDialog.value = true }
-            DropDownSwitchPasscodeMenuItem { /* TODO to implement */ }
+            DropDownSignOutMenuItem {
+                showMenu = false
+                showDialog = true
+            }
+            DropDownSwitchPasscodeMenuItem {
+                showMenu = false
+                val intent = Intent(activity, PasscodeActivity::class.java)
+                activity.startActivity(intent)
+            }
         }
     }
 
@@ -390,7 +396,7 @@ class MainContent(
                         onItemClick(note)
                     })
             ) {
-                Text(
+                DefaultText(
                     modifier = Modifier.padding(16.dp),
                     text = note.updatedAt.formattedDate(),
                     style = TextStyle(
@@ -399,7 +405,7 @@ class MainContent(
                         fontWeight = FontWeight.Light
                     )
                 )
-                Text(
+                DefaultText(
                     text = note.title.getOrDefault(),
                     modifier = Modifier
                         .padding(horizontal = 16.dp),
@@ -407,7 +413,7 @@ class MainContent(
                     overflow = TextOverflow.Ellipsis,
                     style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
                 )
-                Text(
+                DefaultText(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
