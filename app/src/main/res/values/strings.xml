@@ -30,4 +30,5 @@
     <string name="text_logout">Logout</string>
     <string name="text_logout_desc">Are you sure want to logout?</string>
     <string name="msg_email_sent">Email sent!</string>
+    <string name="text_switch_passcode">Switch Passcode</string>
 </resources>

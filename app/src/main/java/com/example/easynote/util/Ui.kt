@@ -30,13 +30,21 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.easynote.ui.theme.BackgroundLoading
+
+@Composable
+fun DefaultText(text: String, fontSize: TextUnit = 16.sp, fontWeight: FontWeight? = null) {
+    Text(text = text, fontSize = fontSize, fontWeight = fontWeight)
+}
 
 @Composable
 fun ArrowBackIcon(clickable: () -> Unit) {

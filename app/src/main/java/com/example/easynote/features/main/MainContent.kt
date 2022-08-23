@@ -18,15 +18,11 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,10 +30,13 @@ import androidx.compose.material.AlertDialog
 import androidx.compose.material.DismissDirection
 import androidx.compose.material.DismissState
 import androidx.compose.material.DismissValue
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.SwipeToDismiss
@@ -47,12 +46,14 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -73,6 +74,7 @@ import com.example.easynote.features.main.state.MainState
 import com.example.easynote.features.main.state.MainUiState
 import com.example.easynote.features.notedetail.NoteDetailActivity
 import com.example.easynote.features.notedetail.NoteDetailActivity.Companion.EXTRA_NOTE
+import com.example.easynote.util.DefaultText
 import com.example.easynote.util.Loading
 import com.example.easynote.util.formattedDate
 import com.example.easynote.util.getOrDefault
@@ -285,12 +287,6 @@ class MainContent(
 
     @Composable
     private fun TopBar() {
-        val shouldShowDialog = remember { mutableStateOf(false) }
-        if (shouldShowDialog.value) {
-            showAlertDialog {
-                shouldShowDialog.value = false
-            }
-        }
         TopAppBar(
             title = {
                 Text(
@@ -306,20 +302,40 @@ class MainContent(
             elevation = 0.dp,
             backgroundColor = Color.Transparent,
             actions = {
-                Row {
-                    Text(
-                        modifier = Modifier
-                            .wrapContentWidth()
-                            .clickable {
-                                shouldShowDialog.value = true
-                            },
-                        text = stringResource(id = R.string.text_logout),
-                        fontSize = 16.sp
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                }
+                TopAppActions()
             }
         )
+    }
+
+    @Composable
+    private fun TopAppActions() {
+        val shouldShowDialog = remember { mutableStateOf(false) }
+        if (shouldShowDialog.value) showAlertDialog { shouldShowDialog.value = false }
+        var showMenu by remember { mutableStateOf(false) }
+        IconButton(onClick = { showMenu = !showMenu }) {
+            Icon(imageVector = Icons.Default.MoreVert, contentDescription = "")
+        }
+        DropdownMenu(
+            expanded = showMenu,
+            onDismissRequest = { showMenu = false }
+        ) {
+            DropDownSignOutMenuItem { shouldShowDialog.value = true }
+            DropDownSwitchPasscodeMenuItem { /* TODO to implement */ }
+        }
+    }
+
+    @Composable
+    private fun DropDownSignOutMenuItem(onClick: () -> Unit) {
+        DropdownMenuItem(onClick = onClick) {
+            DefaultText(text = stringResource(id = R.string.text_logout))
+        }
+    }
+
+    @Composable
+    private fun DropDownSwitchPasscodeMenuItem(onClick: () -> Unit) {
+        DropdownMenuItem(onClick = onClick) {
+            DefaultText(text = stringResource(id = R.string.text_switch_passcode))
+        }
     }
 
     @Composable
@@ -332,14 +348,15 @@ class MainContent(
                     viewModel.logout()
                     gotoLoginScreen()
                 })
-                { Text(text = stringResource(id = R.string.action_yes)) }
+                { DefaultText(text = stringResource(id = R.string.action_yes)) }
             },
             dismissButton = {
-                TextButton(onClick = onCancel)
-                { Text(text = stringResource(id = R.string.action_no)) }
+                TextButton(onClick = onCancel) {
+                    DefaultText(text = stringResource(id = R.string.action_no))
+                }
             },
-            title = { Text(text = stringResource(id = R.string.text_logout)) },
-            text = { Text(text = stringResource(id = R.string.text_logout_desc)) }
+            title = { DefaultText(text = stringResource(id = R.string.text_logout)) },
+            text = { DefaultText(text = stringResource(id = R.string.text_logout_desc)) }
         )
     }
 
