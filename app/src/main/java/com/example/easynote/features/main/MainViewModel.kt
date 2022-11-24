@@ -5,7 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.easynote.data.LocalPreferences
 import com.example.easynote.features.main.state.MainState
 import com.example.easynote.repository.NoteRepository
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class MainViewModel(
@@ -38,6 +44,7 @@ class MainViewModel(
             }.onCompletion {
                 _state.value = MainState.Finished
             }.collect()
+
     }
 
 }

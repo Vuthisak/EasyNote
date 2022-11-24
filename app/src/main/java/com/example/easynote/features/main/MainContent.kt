@@ -225,7 +225,7 @@ class MainContent(
                     .fillMaxHeight()
             ) {
                 items(items = noteItems, { it.id.getOrDefault() }) { item ->
-                    val dismissState = rememberDismissState(DismissValue.Default)
+                    val dismissState = rememberDismissState()
                     val isDismissed = dismissState.isDismissed(DismissDirection.EndToStart)
                     if (dismissState.isDismissed(DismissDirection.EndToStart)
                         && dismissState.dismissDirection == DismissDirection.EndToStart
